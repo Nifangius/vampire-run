@@ -110,11 +110,6 @@ func _handle_move(delta):
 		is_jumping = false
 		$AnimatedSprite2D.play("run")
 	
-	# Если препятствие вытолкнуло за левый край — сброс позиции и урон
-	if position.x < 0:
-		position = initial_position
-		take_damage()
-		
 	check_near_miss()
 	move_and_slide()
 
