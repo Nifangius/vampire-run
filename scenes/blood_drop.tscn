@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://b6sb8u4udg7qh"]
+
+[ext_resource type="Script" uid="uid://b6l1s0sdvwmbl" path="res://scripts/blood_drop.gd" id="1_rabap"]
+[ext_resource type="Texture2D" uid="uid://dluh3b8mgr6qj" path="res://assets/sprites/blood.png" id="2_2ham8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aqk0y"]
+
+[node name="BloodDrop" type="Area2D" unique_id=2726579 groups=["blood_drop"]]
+z_index = 4
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_rabap")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=954657302]
+texture_filter = 1
+position = Vector2(0, -3)
+scale = Vector2(1.9999998, 2.28125)
+texture = ExtResource("2_2ham8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=788932029]
+z_index = 4
+shape = SubResource("RectangleShape2D_aqk0y")
+debug_color = Color(0, 0.6, 0.69803923, 0.101960786)

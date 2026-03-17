@@ -1,0 +1,16 @@
+# Godot
+.godot/
+*.translation
+
+# Импортированные файлы (генерируются автоматически)
+.import/
+
+# Экспорт
+export/
+*.apk
+*.aab
+*.ipa
+
+# OS
+.DS_Store
+Thumbs.db

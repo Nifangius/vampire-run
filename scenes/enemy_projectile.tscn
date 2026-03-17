@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://vkuyylv7ae1u"]
+
+[ext_resource type="Script" uid="uid://bab078uaoms5" path="res://scripts/enemy_projectile.gd" id="1_lofwd"]
+[ext_resource type="Texture2D" uid="uid://cbtdcxxstbq2e" path="res://assets/sprites/projectile.png" id="2_e8ik0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uhqni"]
+size = Vector2(0.99999994, 1)
+
+[node name="EnemyProjectile" type="Area2D" unique_id=1271522715 groups=["enemy_projectile"]]
+z_index = 4
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1_lofwd")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=971696316 groups=["enemy_projectile"]]
+modulate = Color(0.96981794, 0.94316113, 0.4157748, 1)
+texture_filter = 1
+position = Vector2(0, 0.9999995)
+scale = Vector2(1.375, 1.5)
+texture = ExtResource("2_e8ik0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=742261710]
+modulate = Color(1, 1, 1, 0.3882353)
+position = Vector2(4.7683716e-07, 0)
+scale = Vector2(20, 20)
+shape = SubResource("RectangleShape2D_uhqni")
+debug_color = Color(0.9764706, 0.7411765, 0.9372549, 0.94509804)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://lmfa611p0p0h"]
+
+[ext_resource type="Script" uid="uid://c63jxou0tdxx3" path="res://scripts/heart.gd" id="1_ycbwg"]
+[ext_resource type="Texture2D" uid="uid://d2e5fmry7hkex" path="res://assets/sprites/heart.png" id="2_ycbwg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aqk0y"]
+
+[node name="Heart" type="Area2D" unique_id=2726579 groups=["health_drop"]]
+z_index = 4
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_ycbwg")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=954657302]
+texture_filter = 1
+position = Vector2(0, -1.3749996)
+scale = Vector2(1.9999998, 2.078125)
+texture = ExtResource("2_ycbwg")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=788932029]
+z_index = 4
+shape = SubResource("RectangleShape2D_aqk0y")
+debug_color = Color(0, 0.6, 0.69803923, 0.101960786)

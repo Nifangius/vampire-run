@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://cumkm8ccltixu"]
+
+[ext_resource type="Script" uid="uid://g4b36tv7xd36" path="res://scripts/bat.gd" id="1_uhqni"]
+[ext_resource type="Texture2D" uid="uid://bh1ht8obn1e3l" path="res://assets/sprites/bat.png" id="2_cnldk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_48wkk"]
+atlas = ExtResource("2_cnldk")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ss3tx"]
+atlas = ExtResource("2_cnldk")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lv0ya"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_48wkk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ss3tx")
+}],
+"loop": true,
+"name": &"shoot",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uhqni"]
+size = Vector2(0.99999994, 1)
+
+[node name="Bat" type="Area2D" unique_id=1271522715]
+z_index = 4
+collision_layer = 16
+collision_mask = 8
+script = ExtResource("1_uhqni")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1513168760]
+z_index = 3
+texture_filter = 1
+position = Vector2(-5, -4.7683716e-07)
+scale = Vector2(3.574219, 3.7265627)
+sprite_frames = SubResource("SpriteFrames_lv0ya")
+animation = &"shoot"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=742261710]
+modulate = Color(1, 1, 1, 0.3882353)
+position = Vector2(4.7683716e-07, 0)
+scale = Vector2(20, 20)
+shape = SubResource("RectangleShape2D_uhqni")
+debug_color = Color(0.9764706, 0.7411765, 0.9372549, 0.94509804)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

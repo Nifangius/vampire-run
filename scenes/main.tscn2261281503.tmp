@@ -1,0 +1,388 @@
+[gd_scene format=3 uid="uid://dqiaqo7ns66o5"]
+
+[ext_resource type="Script" uid="uid://bsnqnvcqymq4s" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://bmidl0u6qnmu3" path="res://scenes/player.tscn" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://cwyueu0tfmuqk" path="res://scenes/game_over.tscn" id="2_sugp2"]
+[ext_resource type="Texture2D" uid="uid://d2e5fmry7hkex" path="res://sprites/heart.png" id="2_tbgi4"]
+[ext_resource type="Texture2D" uid="uid://dluh3b8mgr6qj" path="res://sprites/blood.png" id="3_tefeu"]
+[ext_resource type="Texture2D" uid="uid://dn1k3c4f3yl6p" path="res://background/back.png" id="6_tipki"]
+[ext_resource type="Texture2D" uid="uid://dc8c8w1ie5ihv" path="res://background/middle.png" id="7_85g3d"]
+[ext_resource type="Texture2D" uid="uid://ckcjlpmr0nknf" path="res://background/front.png" id="8_choun"]
+
+[sub_resource type="FontFile" id="FontFile_tbgi4"]
+cache/0/variation_coordinates = {}
+cache/0/face_index = 0
+cache/0/embolden = 0.0
+cache/0/transform = Transform2D(1, 0, 0, 1, 0, 0)
+cache/0/spacing_top = 0
+cache/0/spacing_bottom = 0
+cache/0/spacing_space = 0
+cache/0/spacing_glyph = 0
+cache/0/baseline_offset = 0.0
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/17/0/ascent = 0.0
+cache/0/17/0/descent = 0.0
+cache/0/17/0/underline_position = 0.0
+cache/0/17/0/underline_thickness = 0.0
+cache/0/17/0/scale = 1.0
+cache/0/18/0/ascent = 0.0
+cache/0/18/0/descent = 0.0
+cache/0/18/0/underline_position = 0.0
+cache/0/18/0/underline_thickness = 0.0
+cache/0/18/0/scale = 1.0
+cache/0/19/0/ascent = 0.0
+cache/0/19/0/descent = 0.0
+cache/0/19/0/underline_position = 0.0
+cache/0/19/0/underline_thickness = 0.0
+cache/0/19/0/scale = 1.0
+cache/0/20/0/ascent = 0.0
+cache/0/20/0/descent = 0.0
+cache/0/20/0/underline_position = 0.0
+cache/0/20/0/underline_thickness = 0.0
+cache/0/20/0/scale = 1.0
+cache/0/21/0/ascent = 0.0
+cache/0/21/0/descent = 0.0
+cache/0/21/0/underline_position = 0.0
+cache/0/21/0/underline_thickness = 0.0
+cache/0/21/0/scale = 1.0
+cache/0/22/0/ascent = 0.0
+cache/0/22/0/descent = 0.0
+cache/0/22/0/underline_position = 0.0
+cache/0/22/0/underline_thickness = 0.0
+cache/0/22/0/scale = 1.0
+cache/0/23/0/ascent = 0.0
+cache/0/23/0/descent = 0.0
+cache/0/23/0/underline_position = 0.0
+cache/0/23/0/underline_thickness = 0.0
+cache/0/23/0/scale = 1.0
+cache/0/24/0/ascent = 0.0
+cache/0/24/0/descent = 0.0
+cache/0/24/0/underline_position = 0.0
+cache/0/24/0/underline_thickness = 0.0
+cache/0/24/0/scale = 1.0
+cache/0/25/0/ascent = 0.0
+cache/0/25/0/descent = 0.0
+cache/0/25/0/underline_position = 0.0
+cache/0/25/0/underline_thickness = 0.0
+cache/0/25/0/scale = 1.0
+cache/0/26/0/ascent = 0.0
+cache/0/26/0/descent = 0.0
+cache/0/26/0/underline_position = 0.0
+cache/0/26/0/underline_thickness = 0.0
+cache/0/26/0/scale = 1.0
+cache/0/27/0/ascent = 0.0
+cache/0/27/0/descent = 0.0
+cache/0/27/0/underline_position = 0.0
+cache/0/27/0/underline_thickness = 0.0
+cache/0/27/0/scale = 1.0
+cache/0/28/0/ascent = 0.0
+cache/0/28/0/descent = 0.0
+cache/0/28/0/underline_position = 0.0
+cache/0/28/0/underline_thickness = 0.0
+cache/0/28/0/scale = 1.0
+cache/0/29/0/ascent = 0.0
+cache/0/29/0/descent = 0.0
+cache/0/29/0/underline_position = 0.0
+cache/0/29/0/underline_thickness = 0.0
+cache/0/29/0/scale = 1.0
+cache/0/30/0/ascent = 0.0
+cache/0/30/0/descent = 0.0
+cache/0/30/0/underline_position = 0.0
+cache/0/30/0/underline_thickness = 0.0
+cache/0/30/0/scale = 1.0
+cache/0/31/0/ascent = 0.0
+cache/0/31/0/descent = 0.0
+cache/0/31/0/underline_position = 0.0
+cache/0/31/0/underline_thickness = 0.0
+cache/0/31/0/scale = 1.0
+cache/0/32/0/ascent = 0.0
+cache/0/32/0/descent = 0.0
+cache/0/32/0/underline_position = 0.0
+cache/0/32/0/underline_thickness = 0.0
+cache/0/32/0/scale = 1.0
+cache/0/33/0/ascent = 0.0
+cache/0/33/0/descent = 0.0
+cache/0/33/0/underline_position = 0.0
+cache/0/33/0/underline_thickness = 0.0
+cache/0/33/0/scale = 1.0
+cache/0/34/0/ascent = 0.0
+cache/0/34/0/descent = 0.0
+cache/0/34/0/underline_position = 0.0
+cache/0/34/0/underline_thickness = 0.0
+cache/0/34/0/scale = 1.0
+cache/0/35/0/ascent = 0.0
+cache/0/35/0/descent = 0.0
+cache/0/35/0/underline_position = 0.0
+cache/0/35/0/underline_thickness = 0.0
+cache/0/35/0/scale = 1.0
+cache/0/36/0/ascent = 0.0
+cache/0/36/0/descent = 0.0
+cache/0/36/0/underline_position = 0.0
+cache/0/36/0/underline_thickness = 0.0
+cache/0/36/0/scale = 1.0
+cache/0/37/0/ascent = 0.0
+cache/0/37/0/descent = 0.0
+cache/0/37/0/underline_position = 0.0
+cache/0/37/0/underline_thickness = 0.0
+cache/0/37/0/scale = 1.0
+cache/0/38/0/ascent = 0.0
+cache/0/38/0/descent = 0.0
+cache/0/38/0/underline_position = 0.0
+cache/0/38/0/underline_thickness = 0.0
+cache/0/38/0/scale = 1.0
+cache/0/39/0/ascent = 0.0
+cache/0/39/0/descent = 0.0
+cache/0/39/0/underline_position = 0.0
+cache/0/39/0/underline_thickness = 0.0
+cache/0/39/0/scale = 1.0
+cache/0/40/0/ascent = 0.0
+cache/0/40/0/descent = 0.0
+cache/0/40/0/underline_position = 0.0
+cache/0/40/0/underline_thickness = 0.0
+cache/0/40/0/scale = 1.0
+cache/0/41/0/ascent = 0.0
+cache/0/41/0/descent = 0.0
+cache/0/41/0/underline_position = 0.0
+cache/0/41/0/underline_thickness = 0.0
+cache/0/41/0/scale = 1.0
+cache/0/42/0/ascent = 0.0
+cache/0/42/0/descent = 0.0
+cache/0/42/0/underline_position = 0.0
+cache/0/42/0/underline_thickness = 0.0
+cache/0/42/0/scale = 1.0
+cache/0/43/0/ascent = 0.0
+cache/0/43/0/descent = 0.0
+cache/0/43/0/underline_position = 0.0
+cache/0/43/0/underline_thickness = 0.0
+cache/0/43/0/scale = 1.0
+cache/0/44/0/ascent = 0.0
+cache/0/44/0/descent = 0.0
+cache/0/44/0/underline_position = 0.0
+cache/0/44/0/underline_thickness = 0.0
+cache/0/44/0/scale = 1.0
+cache/0/45/0/ascent = 0.0
+cache/0/45/0/descent = 0.0
+cache/0/45/0/underline_position = 0.0
+cache/0/45/0/underline_thickness = 0.0
+cache/0/45/0/scale = 1.0
+cache/0/46/0/ascent = 0.0
+cache/0/46/0/descent = 0.0
+cache/0/46/0/underline_position = 0.0
+cache/0/46/0/underline_thickness = 0.0
+cache/0/46/0/scale = 1.0
+cache/0/47/0/ascent = 0.0
+cache/0/47/0/descent = 0.0
+cache/0/47/0/underline_position = 0.0
+cache/0/47/0/underline_thickness = 0.0
+cache/0/47/0/scale = 1.0
+cache/0/48/0/ascent = 0.0
+cache/0/48/0/descent = 0.0
+cache/0/48/0/underline_position = 0.0
+cache/0/48/0/underline_thickness = 0.0
+cache/0/48/0/scale = 1.0
+cache/0/49/0/ascent = 0.0
+cache/0/49/0/descent = 0.0
+cache/0/49/0/underline_position = 0.0
+cache/0/49/0/underline_thickness = 0.0
+cache/0/49/0/scale = 1.0
+cache/0/50/0/ascent = 0.0
+cache/0/50/0/descent = 0.0
+cache/0/50/0/underline_position = 0.0
+cache/0/50/0/underline_thickness = 0.0
+cache/0/50/0/scale = 1.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_tefeu"]
+font = SubResource("FontFile_tbgi4")
+font_size = 29
+font_color = Color(0.3647059, 0.34509805, 0, 1)
+outline_size = 5
+outline_color = Color(0.017732369, 0.017732404, 0.01773236, 1)
+shadow_size = 7
+shadow_color = Color(0, 0, 0, 0.8862745)
+shadow_offset = Vector2(6, 8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_0wfyh"]
+font = SubResource("FontFile_tbgi4")
+font_size = 50
+font_color = Color(0.3647059, 1, 0, 1)
+outline_size = 5
+outline_color = Color(0.017732369, 0.017732404, 0.01773236, 1)
+shadow_size = 7
+shadow_color = Color(0, 0, 0, 0.8862745)
+shadow_offset = Vector2(6, 8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_sugp2"]
+font_size = 47
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_0xm2m"]
+distance = -651.0
+
+[node name="Main" type="Node2D" unique_id=2124825058]
+script = ExtResource("1_0xm2m")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1228004491]
+
+[node name="Health" type="HBoxContainer" parent="UI" unique_id=1426057814]
+z_index = 1
+z_as_relative = false
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 60.0
+offset_bottom = 60.0
+theme_override_constants/separation = 10
+
+[node name="Hrt1" type="TextureRect" parent="UI/Health" unique_id=657878329]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("2_tbgi4")
+expand_mode = 2
+
+[node name="Hrt2" type="TextureRect" parent="UI/Health" unique_id=1847893418]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("2_tbgi4")
+expand_mode = 2
+
+[node name="Hrt3" type="TextureRect" parent="UI/Health" unique_id=1481394350]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("2_tbgi4")
+expand_mode = 2
+
+[node name="Hrt4" type="TextureRect" parent="UI/Health" unique_id=1633189885]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("2_tbgi4")
+expand_mode = 2
+
+[node name="Hrt5" type="TextureRect" parent="UI/Health" unique_id=211822517]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("2_tbgi4")
+expand_mode = 2
+
+[node name="BloodCounter" type="HBoxContainer" parent="UI" unique_id=889854046]
+z_index = 1
+offset_left = 20.0
+offset_top = 70.0
+offset_right = 160.0
+offset_bottom = 110.0
+
+[node name="BloodIcon" type="TextureRect" parent="UI/BloodCounter" unique_id=609496779]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("3_tefeu")
+expand_mode = 2
+
+[node name="BloodLabel" type="Label" parent="UI/BloodCounter" unique_id=983602557]
+layout_mode = 2
+text = "0/13"
+label_settings = SubResource("LabelSettings_tefeu")
+
+[node name="TransformLabel" type="Label" parent="UI" unique_id=539749459]
+visible = false
+offset_left = 19.0
+offset_top = 117.0
+offset_right = 591.0
+offset_bottom = 211.0
+text = "PRESS \"F\" TO TRANSFROM"
+label_settings = SubResource("LabelSettings_0wfyh")
+
+[node name="FlashOverlay" type="ColorRect" parent="UI" unique_id=7890068]
+visible = false
+z_index = 4
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="ScoreLabel" type="Label" parent="UI" unique_id=1102906502]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -152.0
+offset_top = 44.0
+offset_right = -33.0
+offset_bottom = 109.0
+grow_horizontal = 0
+text = "0"
+label_settings = SubResource("LabelSettings_sugp2")
+
+[node name="GameOver" parent="." unique_id=1469536000 instance=ExtResource("2_sugp2")]
+process_mode = 3
+visible = false
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=457583351]
+z_index = 3
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1502368208]
+shape = SubResource("WorldBoundaryShape2D_0xm2m")
+
+[node name="ColorRect" type="ColorRect" parent="Floor" unique_id=1096362015]
+offset_left = -561.0
+offset_top = 643.0
+offset_right = 1152.0
+offset_bottom = 683.0
+color = Color(1, 0.06666667, 0.08627451, 1)
+
+[node name="Player" parent="." unique_id=2127567202 instance=ExtResource("1_ig7tw")]
+z_index = 4
+position = Vector2(250, 610)
+
+[node name="Background" type="Node2D" parent="." unique_id=1615677691]
+
+[node name="Sky1" type="Sprite2D" parent="Background" unique_id=2082208426]
+z_as_relative = false
+texture_filter = 1
+position = Vector2(2, 0)
+scale = Vector2(4.24, 4.05)
+texture = ExtResource("6_tipki")
+centered = false
+
+[node name="Sky2" type="Sprite2D" parent="Background" unique_id=2107055912]
+z_as_relative = false
+texture_filter = 1
+position = Vector2(1152, 0)
+scale = Vector2(4.24, 4.05)
+texture = ExtResource("6_tipki")
+centered = false
+
+[node name="Mid1" type="Sprite2D" parent="Background" unique_id=1848770903]
+modulate = Color(0.30470356, 0.18862696, 0.0769644, 1)
+z_index = 1
+z_as_relative = false
+texture_filter = 1
+position = Vector2(1, 0)
+scale = Vector2(4.24, 4.05)
+texture = ExtResource("7_85g3d")
+centered = false
+
+[node name="Mid2" type="Sprite2D" parent="Background" unique_id=78555212]
+modulate = Color(0.30470356, 0.18862696, 0.0769644, 1)
+z_index = 1
+z_as_relative = false
+position = Vector2(1152, 0)
+scale = Vector2(4.24, 4.05)
+texture = ExtResource("7_85g3d")
+centered = false
+
+[node name="Fore1" type="Sprite2D" parent="Background" unique_id=76065305]
+modulate = Color(0.15765761, 1.6293226, 0.26358622, 1)
+z_index = 2
+z_as_relative = false
+position = Vector2(-2, 0)
+scale = Vector2(4.24, 4.05)
+texture = ExtResource("8_choun")
+centered = false
+
+[node name="Fore2" type="Sprite2D" parent="Background" unique_id=143161906]
+modulate = Color(0.15765761, 1.6293226, 0.26358622, 1)
+z_index = 2
+z_as_relative = false
+position = Vector2(1152, 0)
+scale = Vector2(4.24, 4.05)
+texture = ExtResource("8_choun")
+centered = false
