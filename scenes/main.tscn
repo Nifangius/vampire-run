@@ -5,11 +5,15 @@
 [ext_resource type="PackedScene" uid="uid://cwyueu0tfmuqk" path="res://scenes/game_over.tscn" id="2_sugp2"]
 [ext_resource type="Texture2D" uid="uid://d2e5fmry7hkex" path="res://assets/sprites/heart.png" id="2_tbgi4"]
 [ext_resource type="Texture2D" uid="uid://dluh3b8mgr6qj" path="res://assets/sprites/blood.png" id="3_tefeu"]
+[ext_resource type="PackedScene" path="res://scenes/pause.tscn" id="5_85g3d"]
 [ext_resource type="Texture2D" uid="uid://dn1k3c4f3yl6p" path="res://assets/background/back.png" id="6_tipki"]
 [ext_resource type="Texture2D" uid="uid://dc8c8w1ie5ihv" path="res://assets/background/middle.png" id="7_85g3d"]
 [ext_resource type="Texture2D" uid="uid://ckcjlpmr0nknf" path="res://assets/background/front.png" id="8_choun"]
 
 [sub_resource type="FontFile" id="FontFile_tbgi4"]
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
 cache/0/variation_coordinates = {}
 cache/0/face_index = 0
 cache/0/embolden = 0.0
@@ -313,6 +317,8 @@ label_settings = SubResource("LabelSettings_sugp2")
 [node name="GameOver" parent="." unique_id=1469536000 instance=ExtResource("2_sugp2")]
 process_mode = 3
 visible = false
+
+[node name="Pause" parent="." unique_id=1903150375 instance=ExtResource("5_85g3d")]
 
 [node name="Floor" type="StaticBody2D" parent="." unique_id=457583351]
 z_index = 3

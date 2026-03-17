@@ -24,6 +24,7 @@ const HealthDropScene   = preload("res://scenes/heart.tscn")
 @onready var transform_label = $UI/TransformLabel
 @onready var flash_overlay   = $UI/FlashOverlay
 @onready var game_over_screen = $GameOver
+@onready var pause_screen     = $Pause
 @onready var score_label     = $UI/ScoreLabel
 
 # ============================================================
@@ -73,10 +74,20 @@ func _ready():
 # ИГРОВОЙ ЦИКЛ
 # ============================================================
 func _process(delta):
+	if Input.is_action_just_pressed("ui_cancel"):
+		_toggle_pause()
 	_update_score(delta)
 	_update_difficulty(delta)
 	_update_background(delta)
 	_update_spawners(delta)
+
+func _toggle_pause():
+	if get_tree().paused:
+		pause_screen.hide_pause()
+		get_tree().paused = false
+	else:
+		pause_screen.show_pause(score)
+		get_tree().paused = true
 
 ## Обновление счёта — накапливаем дробное значение
 func _update_score(delta):

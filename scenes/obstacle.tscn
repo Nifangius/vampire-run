@@ -5,7 +5,7 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_qcbvg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
-size = Vector2(80, 8)
+size = Vector2(88, 8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dmg"]
 size = Vector2(10, 70)
@@ -23,7 +23,7 @@ scale = Vector2(80, 70)
 texture = SubResource("PlaceholderTexture2D_qcbvg")
 
 [node name="TopCollision" type="CollisionShape2D" parent="." unique_id=888607570]
-position = Vector2(0, -21)
+position = Vector2(-4, -21)
 shape = SubResource("RectangleShape2D_top")
 one_way_collision = true
 debug_color = Color(0, 0.6, 0, 0.5)
