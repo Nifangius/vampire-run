@@ -17,7 +17,7 @@ func _process(delta):
 	   position.y > GameConfig.SCREEN_BOTTOM_BOUND:
 		queue_free()
 
-func _on_body_entered(body):
+func _on_body_entered(body):  
 	if body.is_in_group("enemy"):
 		body.die()
 		queue_free()

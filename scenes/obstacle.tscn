@@ -4,11 +4,9 @@
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_qcbvg"]
 
-;; Тонкий горизонтальный хитбокс на верхней грани — игрок может стоять на препятствии
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
 size = Vector2(80, 8)
 
-;; Тонкий вертикальный хитбокс на левой грани — зона урона (острия шипов)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dmg"]
 size = Vector2(10, 70)
 
@@ -24,17 +22,15 @@ position = Vector2(0, 10)
 scale = Vector2(80, 70)
 texture = SubResource("PlaceholderTexture2D_qcbvg")
 
-;; Только верхняя грань твёрдая — боковых коллизий нет
 [node name="TopCollision" type="CollisionShape2D" parent="." unique_id=888607570]
 position = Vector2(0, -21)
 shape = SubResource("RectangleShape2D_top")
+one_way_collision = true
 debug_color = Color(0, 0.6, 0, 0.5)
 
-;; Area2D на левой грани: collision_mask=1 чтобы видеть CharacterBody2D игрока (layer 1)
 [node name="DamageArea" type="Area2D" parent="." unique_id=234567890]
-collision_layer = 0
-collision_mask = 1
+collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea" unique_id=345678901]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea" unique_id=345678901 groups=["Obstacles", "obstacle"]]
 position = Vector2(-40, 10)
 shape = SubResource("RectangleShape2D_dmg")
