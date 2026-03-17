@@ -20,7 +20,7 @@ const PLAYER_LIVES          = 5       # начальное количество 
 const PLAYER_JUMP_VELOCITY  = -1200.0  # скорость прыжка (отрицательная = вверх)
 const PLAYER_GRAVITY        = 3000.0  # сила гравитации
 const PLAYER_MIN_JUMP       = -200.0  # минимальная скорость при коротком прыжке
-const PLAYER_DASH_SPEED     = 1000.0   # скорость воздушного дэша вниз
+const PLAYER_DOUBLE_JUMP_VELOCITY = -1000.0  # скорость двойного прыжка (чуть меньше первого)
 const PLAYER_FLY_SPEED      = -700.0  # скорость полёта вверх в режиме мыши
 const PLAYER_FLY_MIN_Y      = 50.0    # верхняя граница полёта
 const PLAYER_FLY_MAX_Y      = 650.0   # нижняя граница полёта
