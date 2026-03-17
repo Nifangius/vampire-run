@@ -31,6 +31,7 @@ var scored_projectiles = []
 
 var initial_position: Vector2  # начальная позиция для сброса после урона
 var velocity_y_before: float   # скорость по Y до move_and_slide() для определения стомпа
+var coyote_timer: float = 0.0  # таймер для coyote time (прыжок сразу после потери опоры)
 
 func _ready():
 	lives = GameConfig.PLAYER_LIVES
@@ -68,15 +69,30 @@ func _handle_fly(delta):
 ## Управление в обычном режиме
 func _handle_move(delta):
 	if not is_on_floor():
-		velocity.y += GameConfig.PLAYER_GRAVITY * delta
-		
-		# В воздухе пробел активирует воздушный дэш вниз
+		# Асимметричная гравитация: при падении тяжелее — приземление снаппи
+		if velocity.y > 0:
+			velocity.y += GameConfig.PLAYER_FALL_GRAVITY * delta
+		else:
+			velocity.y += GameConfig.PLAYER_GRAVITY * delta
+
+		# Coyote time: уменьшаем таймер пока в воздухе
+		coyote_timer -= delta
+
+		# В воздухе пробел активирует воздушный дэш вниз (только если coyote время истекло)
 		if Input.is_action_just_pressed("jump"):
-			is_dashing = true
-			velocity.y = GameConfig.PLAYER_DASH_SPEED
+			if coyote_timer > 0:
+				# Coyote прыжок — ещё не слетели с платформы
+				coyote_timer = 0.0
+				velocity.y = GameConfig.PLAYER_JUMP_VELOCITY
+				is_jumping = true
+				$AnimatedSprite2D.play("jump")
+			else:
+				is_dashing = true
+				velocity.y = GameConfig.PLAYER_DASH_SPEED
 	else:
-		# На земле сбрасываем дэш и обрабатываем прыжок
+		# На земле сбрасываем дэш, обновляем coyote timer и обрабатываем прыжок
 		is_dashing = false
+		coyote_timer = GameConfig.PLAYER_COYOTE_TIME
 		if Input.is_action_just_pressed("jump"):
 			velocity.y = GameConfig.PLAYER_JUMP_VELOCITY
 			is_jumping = true
