@@ -88,6 +88,7 @@ func _handle_move(delta):
 			elif has_double_jump:
 				# Двойной прыжок
 				has_double_jump = false
+				is_jumping = true
 				velocity.y = GameConfig.PLAYER_DOUBLE_JUMP_VELOCITY
 				$AnimatedSprite2D.play("jump")
 	else:
@@ -110,11 +111,6 @@ func _handle_move(delta):
 		is_jumping = false
 		$AnimatedSprite2D.play("run")
 	
-	# Если препятствие вытолкнуло за левый край — сброс позиции и урон
-	if position.x < 0:
-		position = initial_position
-		take_damage()
-		
 	check_near_miss()
 	move_and_slide()
 
@@ -242,12 +238,10 @@ func take_damage():
 func activate_invincibility(duration: float):
 	is_invincible = true
 	$HitBox.monitoring = false
-	set_collision_mask_value(3, false)  # отключаем коллизию с препятствиями
 	_start_blinking()
 	await get_tree().create_timer(duration).timeout
 	is_invincible = false
 	$HitBox.monitoring = true
-	set_collision_mask_value(3, true)
 	$AnimatedSprite2D.visible = true  # гарантируем видимость после моргания
 
 ## Мигание спрайта во время неуязвимости
