@@ -106,13 +106,13 @@ func _handle_move(delta):
 	
 	velocity_y_before = velocity.y
 	
-	# Возврат к анимации бега после приземления
-	if is_jumping and is_on_floor():
-		is_jumping = false
-		$AnimatedSprite2D.play("run")
-	
 	check_near_miss()
 	move_and_slide()
+
+	# Возврат к анимации бега после приземления
+	if is_jumping and is_on_floor():
+			is_jumping = false
+			$AnimatedSprite2D.play("run")
 
 
 func check_near_miss():
