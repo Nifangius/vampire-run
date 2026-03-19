@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://g4b36tv7xd36" path="res://scripts/bat.gd" id="1_uhqni"]
 [ext_resource type="Texture2D" uid="uid://bh1ht8obn1e3l" path="res://assets/sprites/bat.png" id="2_cnldk"]
+[ext_resource type="AudioStream" uid="uid://unsqv2oub46j" path="res://assets/sounds/bat.ogg" id="3_48wkk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_48wkk"]
 atlas = ExtResource("2_cnldk")
@@ -48,5 +49,9 @@ position = Vector2(4.7683716e-07, 0)
 scale = Vector2(20, 20)
 shape = SubResource("RectangleShape2D_uhqni")
 debug_color = Color(0.9764706, 0.7411765, 0.9372549, 0.94509804)
+
+[node name="BatSound" type="AudioStreamPlayer2D" parent="." unique_id=1428854324]
+stream = ExtResource("3_48wkk")
+volume_db = -20.298
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

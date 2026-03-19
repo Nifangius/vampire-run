@@ -28,6 +28,8 @@ const HealthDropScene   = preload("res://scenes/heart.tscn")
 @onready var game_over_screen = $GameOver
 @onready var pause_screen     = $Pause
 @onready var score_label     = $UI/ScoreLabel
+@onready var main_music = $MainBG
+@onready var transform_music = $TransformBG
 
 # ============================================================
 # СОСТОЯНИЕ ИГРЫ
@@ -248,6 +250,10 @@ func _on_transform_ready():
 func _on_transformed():
 	is_transformed = true
 	health_spawn_timer = 0.0
+	
+	main_music.stream_paused = true
+	transform_music.play()
+	
 	# Убираем капли крови с экрана
 	for drop in get_tree().get_nodes_in_group("blood_drop"):
 		drop.queue_free()
@@ -255,6 +261,9 @@ func _on_transformed():
 
 func _on_transform_ended():
 	is_transformed = false
+	
+	transform_music.stop()
+	main_music.stream_paused = false
 	# Убираем сердца с экрана
 	for heart in get_tree().get_nodes_in_group("health_drop"):
 		heart.queue_free()
@@ -264,6 +273,7 @@ func _on_transform_ended():
 # ЭФФЕКТ ТРАНСФОРМАЦИИ — вспышка и пауза
 # ============================================================
 func flash_and_pause():
+	$Player/TransformSound.play()
 	flash_overlay.visible = true
 	get_tree().paused = true
 	await get_tree().create_timer(GameConfig.TRANSFORM_PAUSE).timeout

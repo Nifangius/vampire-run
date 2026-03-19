@@ -10,6 +10,13 @@ var shoot_timer: float
 func _ready():
 	initial_y = position.y
 	$AnimatedSprite2D.play("fly")
+	_start_wing_sound()
+
+func _start_wing_sound():
+	while is_instance_valid(self):
+		$WingSound.play()
+		# Ждём пока звук закончится и играем снова
+		await $WingSound.finished
 
 func _physics_process(delta):
 	time += delta
@@ -38,6 +45,7 @@ func shoot():
 		return
 	
 	$AnimatedSprite2D.play("shoot")
+	$FireSound.play()
 	
 	var projectile = ProjectileScene.instantiate()
 	projectile.position = position
@@ -56,6 +64,8 @@ func shoot():
 func die():
 	set_physics_process(false)
 	$AnimatedSprite2D.play("die")
+	$WingSound.stop()
+	$DieSound.play()
 	
 	# Физическое падение вниз после смерти
 	var fall_speed = 0.0

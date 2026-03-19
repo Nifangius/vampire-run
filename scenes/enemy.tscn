@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://biyi8gwbb6uxk" path="res://scripts/enemy.gd" id="1_7p1mj"]
 [ext_resource type="Texture2D" uid="uid://dv5s26j7kilfd" path="res://assets/sprites/zombie_die.png" id="2_4ra3w"]
 [ext_resource type="Texture2D" uid="uid://dwfgxbchy4vgm" path="res://assets/sprites/zombie_walk.png" id="3_5uy6h"]
+[ext_resource type="AudioStream" uid="uid://c8ka3n6wokp4r" path="res://assets/sounds/zombie.ogg" id="4_5uy6h"]
+[ext_resource type="AudioStream" uid="uid://dky0q3ha8ok7w" path="res://assets/sounds/zombie_die.ogg" id="5_c4w8v"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_c4w8v"]
 atlas = ExtResource("2_4ra3w")
@@ -104,3 +106,13 @@ animation = &"die"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2135430547]
 position = Vector2(15, 12)
 shape = SubResource("RectangleShape2D_7p1mj")
+
+[node name="ZombieSound" type="AudioStreamPlayer2D" parent="." unique_id=2064732328]
+stream = ExtResource("4_5uy6h")
+volume_db = -8.342
+max_distance = 859.0
+
+[node name="DieSound" type="AudioStreamPlayer2D" parent="." unique_id=1728347757]
+stream = ExtResource("5_c4w8v")
+volume_db = -4.449
+max_distance = 859.0

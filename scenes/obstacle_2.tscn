@@ -40,7 +40,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
-size = Vector2(170.5, 8)
+size = Vector2(188.25, 8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dmg"]
 size = Vector2(10, 145.5)
@@ -58,7 +58,7 @@ scale = Vector2(2.876923, 2.876923)
 sprite_frames = SubResource("SpriteFrames_yrd2w")
 
 [node name="TopCollision" type="CollisionShape2D" parent="." unique_id=888607570]
-position = Vector2(59.75, -96)
+position = Vector2(51.125, -101)
 shape = SubResource("RectangleShape2D_top")
 one_way_collision = true
 debug_color = Color(0, 0.6, 0, 0.5)

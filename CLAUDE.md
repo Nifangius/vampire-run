@@ -84,7 +84,8 @@ res://
 |--------|------------|---------|
 | `enemy` | enemy.tscn, flying_enemy.tscn | Определение врагов для стомпа и урона |
 | `flying_enemy` | flying_enemy.tscn | Различие наземных и летающих для очков |
-| `obstacle` | obstacle.tscn | Проверка при спавне капель крови |
+| `obstacle` | obstacle.tscn, obstacle_2.tscn, obstacle_safe.tscn | Проверка при спавне капель крови и safe obstacle |
+| `safe_obstacle` | obstacle_safe.tscn | Отличие безопасного препятствия от опасных при спавне |
 | `player` | Player узел | Получение урона от DamageArea препятствий |
 | `player_hitbox` | HitBox узел игрока | Урон от снарядов врага (узкий хитбокс) |
 | `blood_drop` | blood_drop.tscn | Очистка при трансформации |
@@ -151,10 +152,20 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 
 ## Архитектура препятствий (obstacle.gd)
 
-- `obstacle_type` (0 или 1) — визуальный тип, выбирается случайно в `_ready()`
+Три вида препятствий:
+- `obstacle.tscn` — obstacle_type 0, статичный спрайт (шипы)
+- `obstacle_2.tscn` — obstacle_type 1, анимированный спрайт
+- `obstacle_safe.tscn` — obstacle_type 2, безопасное препятствие-платформа (без DamageArea)
+
+Все три в группе `obstacle`. Только `obstacle_safe.tscn` дополнительно в группе `safe_obstacle`.
+
 - **TopCollision** (CollisionShape2D) — тонкая горизонтальная полоска на верхней грани, `one_way_collision = true`. Игрок может запрыгнуть на препятствие как на платформу.
-- **DamageArea** (Area2D) — тонкая вертикальная полоска на левой грани. При касании вызывает `take_damage()` на игроке. Не отталкивает.
-- TODO: при появлении спрайтов заменить `sprite.modulate` на `sprite.texture` в `_apply_variant()`
+- **DamageArea** (Area2D) — тонкая вертикальная полоска на левой грани (только у опасных). При касании вызывает `take_damage()` на игроке. Не отталкивает.
+
+### Логика спавна препятствий
+- `spawn_obstacle()` проверяет группу `safe_obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (500px)
+- `spawn_safe_obstacle()` проверяет группу `obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (500px)
+- Капли крови (`spawn_blood_drop()`): рядом с опасным (300px) — поднимаются выше DamageArea; рядом с `safe_obstacle` — не спавнятся совсем
 
 ---
 
@@ -221,3 +232,4 @@ Main
 - При добавлении новых врагов: добавить в группу `enemy`, установить Layer 3
 - При добавлении новых коллектаблов: добавить группу для очистки при трансформации
 - Препятствия наносят урон через `DamageArea` (левая грань), не через физический толчок
+- При добавлении нового вида препятствия: добавить в группу `obstacle`, если безопасное — также в `safe_obstacle`; спавнеры в `main.gd` учтут его автоматически
