@@ -26,7 +26,6 @@ var can_transform: bool  # доступна ли трансформация
 var is_shooting: bool    # проигрывается ли анимация стрельбы
 var is_jumping: bool     # находится ли игрок в прыжке
 var has_double_jump: bool = true  # доступен ли двойной прыжок
-var near_miss_scored = false
 var scored_projectiles = []
 
 var initial_position: Vector2  # начальная позиция для сброса после урона
@@ -126,14 +125,11 @@ func check_near_miss():
 		var height_diff = projectile.position.y - position.y
 		
 		if distance < GameConfig.NEAR_MISS_DISTANCE and \
-		   height_diff > GameConfig.NEAR_MISS_HEIGHT_MIN and \
-		   height_diff < GameConfig.NEAR_MISS_HEIGHT_MAX:
+		   projectile.position.x < position.x and \
+		   abs(height_diff) > GameConfig.NEAR_MISS_HEIGHT_MIN and \
+		   abs(height_diff) < GameConfig.NEAR_MISS_HEIGHT_MAX:
 			scored_projectiles.append(projectile)  # запоминаем снаряд
 			get_parent().add_score(GameConfig.SCORE_NEAR_MISS, position)
-	
-	# Сбрасываем флаг при приземлении
-	if is_on_floor():
-		near_miss_scored = false
 
 # ============================================================
 # ВВОД — вызывается каждый кадр
@@ -272,5 +268,5 @@ func _on_hitbox_body_entered(body):
 			take_damage() 
 
 func _on_hitbox_area_entered(area):
-	if area.is_in_group("enemy_projectile"):
+	if area.is_in_group("enemy_projectile") and area not in scored_projectiles:
 		take_damage()
