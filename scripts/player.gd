@@ -125,7 +125,7 @@ func check_near_miss():
 		var height_diff = projectile.position.y - position.y
 		
 		if distance < GameConfig.NEAR_MISS_DISTANCE and \
-		   projectile.position.x < position.x and \
+		   projectile.position.x < position.x+20 and \
 		   abs(height_diff) > GameConfig.NEAR_MISS_HEIGHT_MIN and \
 		   abs(height_diff) < GameConfig.NEAR_MISS_HEIGHT_MAX:
 			scored_projectiles.append(projectile)  # запоминаем снаряд

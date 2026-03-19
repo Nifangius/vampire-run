@@ -6,6 +6,7 @@ var pixel_font = preload("res://assets/fonts/ThaleahFat.ttf")
 # ============================================================
 const ObstacleScene     = preload("res://scenes/obstacle.tscn")
 const Obstacle2Scene    = preload("res://scenes/obstacle_2.tscn")
+const ObstacleSafeScene = preload("res://scenes/obstacle_safe.tscn")
 const EnemyScene        = preload("res://scenes/enemy.tscn")
 const FlyingEnemyScene  = preload("res://scenes/flying_enemy.tscn")
 const BloodDropScene    = preload("res://scenes/blood_drop.tscn")
@@ -42,6 +43,9 @@ var is_transformed: bool  # активна ли трансформация иг�
 var spawn_timer: float
 var spawn_interval: float
 
+var safe_obstacle_spawn_timer: float
+var safe_obstacle_spawn_interval: float
+
 var enemy_spawn_timer: float
 var enemy_spawn_interval: float
 
@@ -57,7 +61,8 @@ var health_spawn_interval: float
 func _ready():
 	# Начальные значения
 	difficulty = 1.0
-	spawn_interval        = GameConfig.SPAWN_OBSTACLE_MAX
+	spawn_interval                = GameConfig.SPAWN_OBSTACLE_MAX
+	safe_obstacle_spawn_interval  = GameConfig.SPAWN_SAFE_OBSTACLE_MAX
 	enemy_spawn_interval  = GameConfig.SPAWN_ENEMY_MAX
 	flying_spawn_interval = GameConfig.SPAWN_FLYING_MAX
 	blood_spawn_interval  = GameConfig.SPAWN_BLOOD_MAX
@@ -115,6 +120,12 @@ func _update_spawners(delta):
 	if spawn_timer >= spawn_interval:
 		spawn_timer = 0.0
 		spawn_obstacle()
+
+	# Безопасные препятствия — реже
+	safe_obstacle_spawn_timer += delta
+	if safe_obstacle_spawn_timer >= safe_obstacle_spawn_interval:
+		safe_obstacle_spawn_timer = 0.0
+		spawn_safe_obstacle()
 	
 	# Враги всегда
 	enemy_spawn_timer += delta
@@ -157,11 +168,24 @@ func scroll_two_layers(layer1: Sprite2D, layer2: Sprite2D, speed: float):
 # СПАВН ОБЪЕКТОВ
 # ============================================================
 func spawn_obstacle():
+	# Не спавним опасное препятствие рядом с безопасным
+	for safe in get_tree().get_nodes_in_group("safe_obstacle"):
+		if abs(safe.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_SAFE_OBSTACLE_MIN_GAP:
+			return
 	var scene = ObstacleScene if randi() % 2 == 0 else Obstacle2Scene
 	var obstacle = scene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
 	add_child(obstacle)
 	spawn_interval = randf_range(GameConfig.SPAWN_OBSTACLE_MIN, GameConfig.SPAWN_OBSTACLE_MAX) / difficulty
+
+func spawn_safe_obstacle():
+	for obstacle in get_tree().get_nodes_in_group("obstacle"):
+		if abs(obstacle.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_SAFE_OBSTACLE_MIN_GAP:
+			return
+	var obstacle = ObstacleSafeScene.instantiate()
+	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
+	add_child(obstacle)
+	safe_obstacle_spawn_interval = randf_range(GameConfig.SPAWN_SAFE_OBSTACLE_MIN, GameConfig.SPAWN_SAFE_OBSTACLE_MAX) / difficulty
 
 func spawn_enemy():
 	var enemy = EnemyScene.instantiate()
@@ -178,13 +202,19 @@ func spawn_flying_enemy():
 func spawn_blood_drop():
 	var drop = BloodDropScene.instantiate()
 	var safe_y = randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX)
-	
-	# Если рядом есть препятствие — поднимаем каплю выше
+	var elevated = false
+
 	for obstacle in get_tree().get_nodes_in_group("obstacle"):
-		if abs(obstacle.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_OBSTACLE_CHECK:
-			safe_y = randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX)
-			break
-	
+		if abs(obstacle.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK:
+			# Рядом с безопасным препятствием — пропускаем спавн полностью
+			if obstacle.is_in_group("safe_obstacle"):
+				return
+			# Рядом с опасным — поднимаем каплю выше DamageArea
+			elevated = true
+
+	if elevated:
+		safe_y = randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX)
+
 	drop.position = Vector2(GameConfig.SPAWN_X, safe_y)
 	add_child(drop)
 	blood_spawn_interval = randf_range(GameConfig.SPAWN_BLOOD_MIN, GameConfig.SPAWN_BLOOD_MAX) / difficulty

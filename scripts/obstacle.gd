@@ -8,7 +8,8 @@ extends StaticBody2D
 
 func _ready():
 	_apply_variant()
-	damage_area.body_entered.connect(_on_damage_area_body_entered)
+	if obstacle_type != 2:
+		damage_area.body_entered.connect(_on_damage_area_body_entered)
 
 func _apply_variant():
 	# Тип определяется сценой через Inspector — не перезаписываем
