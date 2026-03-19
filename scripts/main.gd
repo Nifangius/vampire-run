@@ -5,6 +5,7 @@ var pixel_font = preload("res://assets/fonts/ThaleahFat.ttf")
 # РЕСУРСЫ — предзагрузка сцен
 # ============================================================
 const ObstacleScene     = preload("res://scenes/obstacle.tscn")
+const Obstacle2Scene    = preload("res://scenes/obstacle_2.tscn")
 const EnemyScene        = preload("res://scenes/enemy.tscn")
 const FlyingEnemyScene  = preload("res://scenes/flying_enemy.tscn")
 const BloodDropScene    = preload("res://scenes/blood_drop.tscn")
@@ -156,7 +157,8 @@ func scroll_two_layers(layer1: Sprite2D, layer2: Sprite2D, speed: float):
 # СПАВН ОБЪЕКТОВ
 # ============================================================
 func spawn_obstacle():
-	var obstacle = ObstacleScene.instantiate()
+	var scene = ObstacleScene if randi() % 2 == 0 else Obstacle2Scene
+	var obstacle = scene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
 	add_child(obstacle)
 	spawn_interval = randf_range(GameConfig.SPAWN_OBSTACLE_MIN, GameConfig.SPAWN_OBSTACLE_MAX) / difficulty
