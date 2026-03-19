@@ -1,8 +1,16 @@
 ## enemy.gd — наземный враг
 extends CharacterBody2D
 
+const SOUNDS = [
+	preload("res://assets/sounds/zombie.ogg"),
+	preload("res://assets/sounds/zombie2.ogg"),
+	preload("res://assets/sounds/zombie3.ogg")
+]
+
 func _ready():
 	$AnimatedSprite2D.play("walk")
+	$ZombieSound.stream = SOUNDS[randi() % SOUNDS.size()]
+	$ZombieSound.play()
 
 func _physics_process(delta):
 	# Гравитация — враг стоит на полу
@@ -19,6 +27,7 @@ func _physics_process(delta):
 
 func die(speed: float = 1.0):
 	set_physics_process(false)
+	$DieSound.play()
 	$AnimatedSprite2D.speed_scale = speed  # slam stomp ускоряет анимацию смерти
 	$AnimatedSprite2D.play("die")
 	await $AnimatedSprite2D.animation_finished

@@ -26,12 +26,15 @@ var can_transform: bool  # доступна ли трансформация
 var is_shooting: bool    # проигрывается ли анимация стрельбы
 var is_jumping: bool     # находится ли игрок в прыжке
 var has_double_jump: bool = true  # доступен ли двойной прыжок
-var near_miss_scored = false
+var was_on_floor = true
 var scored_projectiles = []
 
 var initial_position: Vector2  # начальная позиция для сброса после урона
 var velocity_y_before: float   # скорость по Y до move_and_slide() для определения стомпа
 var coyote_timer: float = 0.0  # таймер для coyote time (прыжок сразу после потери опоры)
+
+var footstep_timer = 0.0
+var flap_timer = 0.0
 
 func _ready():
 	lives = GameConfig.PLAYER_LIVES
@@ -46,8 +49,10 @@ func _ready():
 func _physics_process(delta):
 	if is_transformed:
 		_handle_fly(delta)
+		_handle_flaps(delta)
 	else:
 		_handle_move(delta)
+		_handle_footsteps(delta)
 
 ## Управление в режиме трансформированной мыши
 func _handle_fly(delta):
@@ -77,6 +82,7 @@ func _handle_move(delta):
 
 		# Coyote time: уменьшаем таймер пока в воздухе
 		coyote_timer -= delta
+			
 
 		if Input.is_action_just_pressed("jump"):
 			if coyote_timer > 0:
@@ -85,12 +91,14 @@ func _handle_move(delta):
 				velocity.y = GameConfig.PLAYER_JUMP_VELOCITY
 				is_jumping = true
 				$AnimatedSprite2D.play("jump")
+				$Jump.play()  # звук прыжка
 			elif has_double_jump:
 				# Двойной прыжок
 				has_double_jump = false
 				is_jumping = true
 				velocity.y = GameConfig.PLAYER_DOUBLE_JUMP_VELOCITY
 				$AnimatedSprite2D.play("jump")
+				$Jump.play()  # звук прыжка
 	else:
 		# На земле восстанавливаем двойной прыжок и обрабатываем первый прыжок
 		has_double_jump = true
@@ -99,19 +107,21 @@ func _handle_move(delta):
 			velocity.y = GameConfig.PLAYER_JUMP_VELOCITY
 			is_jumping = true
 			$AnimatedSprite2D.play("jump")
-
+			$Jump.play()  # звук прыжка
 	# Короткое нажатие = низкий прыжок
 	if Input.is_action_just_released("jump") and velocity.y < GameConfig.PLAYER_MIN_JUMP:
 		velocity.y = GameConfig.PLAYER_MIN_JUMP
 	
 	velocity_y_before = velocity.y
-	
-	check_near_miss()
 	move_and_slide()
-
+	check_near_miss()
+	
 	# Возврат к анимации бега после приземления
 	if is_jumping and is_on_floor():
 			is_jumping = false
+			$Land.play()
+			$Footsteps.play()
+			footstep_timer = 0.0
 			$AnimatedSprite2D.play("run")
 
 
@@ -126,14 +136,11 @@ func check_near_miss():
 		var height_diff = projectile.position.y - position.y
 		
 		if distance < GameConfig.NEAR_MISS_DISTANCE and \
-		   height_diff > GameConfig.NEAR_MISS_HEIGHT_MIN and \
-		   height_diff < GameConfig.NEAR_MISS_HEIGHT_MAX:
+		   projectile.position.x < position.x+20 and \
+		   abs(height_diff) > GameConfig.NEAR_MISS_HEIGHT_MIN and \
+		   abs(height_diff) < GameConfig.NEAR_MISS_HEIGHT_MAX:
 			scored_projectiles.append(projectile)  # запоминаем снаряд
 			get_parent().add_score(GameConfig.SCORE_NEAR_MISS, position)
-	
-	# Сбрасываем флаг при приземлении
-	if is_on_floor():
-		near_miss_scored = false
 
 # ============================================================
 # ВВОД — вызывается каждый кадр
@@ -182,6 +189,7 @@ func shoot_triple():
 		var bat = BatScene.instantiate()
 		bat.position = Vector2(position.x + 50, position.y)
 		bat.direction = Vector2(1, tan(deg_to_rad(angle))).normalized()
+		bat.volume_db = -26.0
 		get_parent().add_child(bat)
 
 # ============================================================
@@ -211,6 +219,7 @@ func collect_blood():
 	if is_transformed:
 		return  # во время трансформации капли крови не собираются
 	blood_count += 1
+	$DropSound.play()
 	emit_signal("blood_collected", blood_count)
 	if blood_count >= GameConfig.BLOOD_TO_TRANSFORM:
 		can_transform = true
@@ -227,6 +236,7 @@ func collect_health():
 func take_damage():
 	if is_invincible:
 		return
+	$HitSound.play()
 	lives -= 1
 	position = initial_position
 	emit_signal("hit", lives)
@@ -258,6 +268,7 @@ func _start_blinking():
 func _on_hitbox_body_entered(body):
 	if body.is_in_group("enemy"):
 		if velocity_y_before > 0:
+			$StompSound.play()
 			body.die()     # обычный стомп — отскок вверх
 			velocity.y = GameConfig.PLAYER_STOMP_BOUNCE
 			
@@ -272,5 +283,24 @@ func _on_hitbox_body_entered(body):
 			take_damage() 
 
 func _on_hitbox_area_entered(area):
-	if area.is_in_group("enemy_projectile"):
+	if area.is_in_group("enemy_projectile") and area not in scored_projectiles:
 		take_damage()
+		
+func _handle_footsteps(delta):
+	# Звук шагов только когда на земле и не стреляем
+	if is_on_floor() and not is_jumping:
+		footstep_timer += delta
+		if footstep_timer >= GameConfig.FOOTSTEP_INTERVAL:
+			footstep_timer = 0.0
+			$Footsteps.play()
+	else:
+		# Сбрасываем таймер когда в воздухе
+		footstep_timer = 0.0
+		
+func _handle_flaps(delta):
+	flap_timer += delta
+	print(flap_timer)
+	if flap_timer >= GameConfig.FLAP_INTERVAL:
+		flap_timer = 0.0
+		print('play')
+		$Flap.play()

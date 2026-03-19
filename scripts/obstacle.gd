@@ -2,21 +2,19 @@
 ## Верх является твёрдой платформой, левая грань дамажит игрока при касании
 extends StaticBody2D
 
-@export var obstacle_type: int = 0  # 0 = колья (красные), 1 = брёвна (коричневые)
+@export var obstacle_type: int = 0  # 0 = статичный (obstacle-1), 1 = анимированный (obstacle-2)
 
-@onready var sprite      = $Sprite2D
 @onready var damage_area = $DamageArea
 
 func _ready():
-	obstacle_type = randi() % 2
 	_apply_variant()
-	damage_area.body_entered.connect(_on_damage_area_body_entered)
+	if obstacle_type != 2:
+		damage_area.body_entered.connect(_on_damage_area_body_entered)
 
-## Визуальное различие типов — TODO: заменить на смену текстуры при появлении спрайтов
 func _apply_variant():
-	match obstacle_type:
-		0: sprite.modulate = Color(0.898, 0.133, 0.0, 1)  # красный — колья
-		1: sprite.modulate = Color(0.55, 0.35, 0.1, 1)    # коричневый — брёвна
+	# Тип определяется сценой через Inspector — не перезаписываем
+	if obstacle_type == 1:
+		$AnimatedSprite2D.play()
 
 func _physics_process(delta):
 	position.x -= GameConfig.OBSTACLE_SPEED * delta
