@@ -70,7 +70,12 @@ func _ready():
 	blood_spawn_interval  = GameConfig.SPAWN_BLOOD_MAX
 	health_spawn_interval = GameConfig.SPAWN_HEALTH_MAX
 	
-	# Подключаем сигналы игрока
+	# Назначаем аудио шины
+	$MainBG.bus = "Music"
+	$TransformBG.bus = "Music"
+
+	# Подключаем сигналы паузы и игрока
+	pause_screen.resumed.connect(_on_pause_resumed)
 	$Player.hit.connect(_on_player_hit)
 	$Player.died.connect(_on_player_died)
 	$Player.blood_collected.connect(_on_blood_collected)
@@ -82,19 +87,29 @@ func _ready():
 # ИГРОВОЙ ЦИКЛ
 # ============================================================
 func _process(delta):
-	if Input.is_action_just_pressed("ui_cancel"):
-		_toggle_pause()
 	_update_score(delta)
 	_update_difficulty(delta)
 	_update_background(delta)
 	_update_spawners(delta)
 
+func _on_pause_resumed():
+	if is_transformed:
+		transform_music.stream_paused = false
+	else:
+		main_music.stream_paused = false
+
+func _unhandled_input(event: InputEvent):
+	if event.is_action_pressed("ui_cancel") and not get_tree().paused:
+		_toggle_pause()
+
 func _toggle_pause():
 	if get_tree().paused:
 		pause_screen.hide_pause()
+		main_music.stream_paused = false
 		get_tree().paused = false
 	else:
 		pause_screen.show_pause(score)
+		main_music.stream_paused = true
 		get_tree().paused = true
 
 ## Обновление счёта — накапливаем дробное значение
@@ -174,6 +189,7 @@ func spawn_obstacle():
 	for safe in get_tree().get_nodes_in_group("safe_obstacle"):
 		if abs(safe.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_SAFE_OBSTACLE_MIN_GAP:
 			return
+	_clear_collectibles_near_spawn()
 	var scene = ObstacleScene if randi() % 2 == 0 else Obstacle2Scene
 	var obstacle = scene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
@@ -201,29 +217,49 @@ func spawn_flying_enemy():
 	add_child(enemy)
 	flying_spawn_interval = randf_range(GameConfig.SPAWN_FLYING_MIN, GameConfig.SPAWN_FLYING_MAX) / difficulty
 
-func spawn_blood_drop():
-	var drop = BloodDropScene.instantiate()
-	var safe_y = randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX)
-	var elevated = false
+# Удаляет коллектаблы рядом с точкой спавна — вызывается перед спавном опасного препятствия
+func _clear_collectibles_near_spawn():
+	for drop in get_tree().get_nodes_in_group("blood_drop"):
+		if abs(drop.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK:
+			drop.queue_free()
+	for drop in get_tree().get_nodes_in_group("health_drop"):
+		if abs(drop.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK:
+			drop.queue_free()
 
+# Возвращает тип ближайшего препятствия в радиусе: "dangerous", "safe" или "none"
+# Опасное препятствие имеет приоритет над безопасным
+func _nearest_obstacle_type(radius: float) -> String:
+	var has_safe := false
 	for obstacle in get_tree().get_nodes_in_group("obstacle"):
-		if abs(obstacle.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK:
-			# Рядом с безопасным препятствием — пропускаем спавн полностью
+		if abs(obstacle.position.x - GameConfig.SPAWN_X) < radius:
 			if obstacle.is_in_group("safe_obstacle"):
-				return
-			# Рядом с опасным — поднимаем каплю выше DamageArea
-			elevated = true
+				has_safe = true
+			else:
+				return "dangerous"
+	return "safe" if has_safe else "none"
 
-	if elevated:
-		safe_y = randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX)
-
-	drop.position = Vector2(GameConfig.SPAWN_X, safe_y)
-	add_child(drop)
+func spawn_blood_drop():
+	var nearby := _nearest_obstacle_type(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
 	blood_spawn_interval = randf_range(GameConfig.SPAWN_BLOOD_MIN, GameConfig.SPAWN_BLOOD_MAX) / difficulty
+	# Рядом с безопасным препятствием — пропускаем спавн
+	if nearby == "safe":
+		return
+	var drop = BloodDropScene.instantiate()
+	if nearby == "dangerous":
+		# Поднимаем каплю выше DamageArea
+		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX))
+	else:
+		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX))
+	add_child(drop)
 
 func spawn_health_drop():
+	var nearby := _nearest_obstacle_type(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
 	var drop = HealthDropScene.instantiate()
-	drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX))
+	if nearby == "dangerous":
+		# Поднимаем сердечко выше DamageArea
+		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX))
+	else:
+		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX))
 	add_child(drop)
 	health_spawn_interval = randf_range(GameConfig.SPAWN_HEALTH_MIN, GameConfig.SPAWN_HEALTH_MAX) / difficulty
 
