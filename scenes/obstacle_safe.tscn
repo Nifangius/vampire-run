@@ -14,12 +14,12 @@ script = ExtResource("1_oyoxx")
 obstacle_type = 2
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=24579655]
-position = Vector2(27.500002, -55.59376)
-scale = Vector2(4.84375, 6.46289)
+position = Vector2(38.500008, -109.093765)
+scale = Vector2(5.5312505, 9.806641)
 texture = ExtResource("2_oyoxx")
 
 [node name="TopCollision" type="CollisionShape2D" parent="." unique_id=888607570]
-position = Vector2(29.75, -142)
+position = Vector2(38, -243)
 shape = SubResource("RectangleShape2D_top")
 one_way_collision = true
 debug_color = Color(0, 0.6, 0, 0.5)

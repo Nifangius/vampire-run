@@ -398,9 +398,9 @@ centered = false
 [node name="MainBG" type="AudioStreamPlayer" parent="." unique_id=1353737210]
 process_mode = 3
 stream = ExtResource("10_ya4ey")
-volume_db = -32.701
+volume_db = -25.92
 autoplay = true
 
 [node name="TransformBG" type="AudioStreamPlayer" parent="." unique_id=933113858]
 stream = ExtResource("11_eb6dy")
-volume_db = -16.083
+volume_db = -24.99

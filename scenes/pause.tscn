@@ -36,6 +36,14 @@ text = "Счёт: 0"
 layout_mode = 2
 text = "Продолжить"
 
+[node name="Settings" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Настройки"
+
+[node name="Records" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Рекорды"
+
 [node name="Exit" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 text = "Выйти из игры"
