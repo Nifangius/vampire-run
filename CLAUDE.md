@@ -15,6 +15,9 @@
 ```
 res://
 ├── scenes/
+│   ├── main_menu.tscn        # начальный экран (стартовая сцена)
+│   ├── settings_menu.tscn    # экран настроек (громкость, разрешение, окно)
+│   ├── leaderboard.tscn      # таблица рекордов
 │   ├── main.tscn             # главная сцена игры
 │   ├── player.tscn           # игрок — вампир
 │   ├── enemy.tscn            # наземный враг — зомби
@@ -24,10 +27,15 @@ res://
 │   ├── enemy_projectile.tscn # снаряд врага
 │   ├── blood_drop.tscn       # коллектабл — капля крови
 │   ├── heart.tscn            # коллектабл — сердце (только при трансформации)
-│   ├── game_over.tscn        # экран окончания игры
+│   ├── game_over.tscn        # экран окончания игры (с вводом имени)
 │   └── pause.tscn            # экран паузы
 ├── scripts/
 │   ├── game_config.gd        # ВСЕ константы игры (AutoLoad: GameConfig)
+│   ├── settings_manager.gd   # настройки звука/дисплея (AutoLoad: SettingsManager)
+│   ├── scores_manager.gd     # таблица рекордов (AutoLoad: ScoresManager)
+│   ├── main_menu.gd
+│   ├── settings_menu.gd
+│   ├── leaderboard.gd
 │   ├── main.gd
 │   ├── player.gd
 │   ├── enemy.gd
@@ -42,7 +50,8 @@ res://
 └── assets/
     ├── backgrounds/           # параллакс фоны (3 слоя)
     ├── sprites/               # спрайты персонажей
-    └── fonts/                 # пиксельные шрифты
+    ├── sounds/                # звуки и музыка
+    └── fonts/                 # пиксельные шрифты (ThaleahFat.ttf)
 ```
 
 ---
@@ -52,6 +61,8 @@ res://
 | Имя | Файл | Назначение |
 |-----|------|-----------|
 | `GameConfig` | `game_config.gd` | Все константы и настройки игры |
+| `SettingsManager` | `settings_manager.gd` | Громкость, разрешение, режим окна, сохранение в user://settings.cfg |
+| `ScoresManager` | `scores_manager.gd` | Таблица рекордов (топ-10), сохранение в user://scores.cfg |
 
 **Важно:** все магические числа должны быть в `game_config.gd`. При добавлении новых механик сначала добавляй константы туда.
 
@@ -133,6 +144,13 @@ collect_health()                     # собрать сердце
 Все объекты спавнятся на X = `GameConfig.SPAWN_X` (1300) и движутся влево.
 Интервалы спавна рандомизированы и делятся на `difficulty` — со временем враги появляются чаще.
 
+**Важно про спавн коллектаблов:**
+- `_nearest_obstacle_type(radius)` — хелпер, возвращает `"dangerous"`, `"safe"` или `"none"`
+- `spawn_safe_obstacle()` — **всегда** спавнит каплю крови прямо на платформу; Y определяется через `obstacle.get_platform_top_y() - 50` (реальная геометрия, не константа)
+- `spawn_blood_drop()`: рядом с safe_obstacle → пропуск (капля уже есть на платформе); рядом с опасным → elevated Y (200-350); чистая зона → Y у земли
+- `spawn_health_drop()`: рядом с опасным → elevated Y
+- **Нет `_clear_collectibles_near_spawn()`** — функция удалена. Коллектаблы никогда не удаляются принудительно после спавна; безопасное размещение решается в момент спавна
+
 ### Система очков
 ```gdscript
 add_score(points: int, position: Vector2)  # начислить очки и показать попап
@@ -146,7 +164,49 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 При трансформации и её окончании вызывается `flash_and_pause()` — белая вспышка + пауза 0.5 сек + неуязвимость 1.5 сек.
 
 ### Пауза
-`_toggle_pause()` — вызывается по Escape. Показывает/скрывает `pause.tscn` и передаёт текущий счёт.
+`_toggle_pause()` открывает паузу (только когда НЕ на паузе). Закрытие — исключительно через pause.gd.
+Музыка при паузе: `main_music.stream_paused`. Возобновление через сигнал `pause_screen.resumed`.
+
+---
+
+## Архитектура паузы (pause.gd)
+
+- Process Mode: Always
+- Навигация: W/S по кнопкам, Escape = продолжить
+- Escape поглощается через `_unhandled_input` + `set_input_as_handled()` чтобы main.gd не получил событие
+- Кнопки: Продолжить, Настройки, Рекорды, Выйти
+- Настройки и Рекорды открываются как оверлей (`add_child`) поверх паузы — игровой прогресс сохраняется
+- Сигнал `resumed` эмитируется при продолжении → main.gd возобновляет нужную музыку
+
+**Важно:** `Input.is_action_just_pressed()` — polling, игнорирует `set_input_as_handled()`. Для перехвата событий с приоритетом использовать `_unhandled_input`.
+
+---
+
+## Архитектура Game Over (game_over.gd)
+
+1. При первой смерти в сессии — показывается панель `NameInput` с LineEdit
+2. Пробел/Enter/ОК подтверждают имя → `ScoresManager.session_name` сохраняется на всю сессию
+3. При последующих смертях — имя уже известно, сразу сохраняется счёт
+4. Кнопки: "Ещё раз" (`reload_current_scene`), "Главное меню"
+
+---
+
+## Архитектура SettingsManager
+
+- Создаёт аудио шины `Music` и `SFX` программно в `_ready()` (не в .tscn — редактор их стирает)
+- Назначение шин в скриптах: `main.gd` — MainBG/TransformBG → `"Music"`; `player.gd` — все SFX узлы → `"SFX"`
+- Сохраняет: master/music/sfx volume (0.0–1.0), windowed bool, resolution_idx
+- `apply_settings()` — применяет всё сразу
+- Разрешения: 1280×720, 1920×1080, 2560×1440
+
+---
+
+## Архитектура ScoresManager
+
+- Топ-10 рекордов, отсортированы по убыванию счёта
+- Имена уникальны: `add_score()` обновляет запись только если новый счёт **больше** существующего
+- `session_name` — имя игрока в текущей сессии, сбрасывается только при выходе из приложения
+- Сохраняется в `user://scores.cfg`
 
 ---
 
@@ -163,9 +223,9 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 - **DamageArea** (Area2D) — тонкая вертикальная полоска на левой грани (только у опасных). При касании вызывает `take_damage()` на игроке. Не отталкивает.
 
 ### Логика спавна препятствий
-- `spawn_obstacle()` проверяет группу `safe_obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (500px)
-- `spawn_safe_obstacle()` проверяет группу `obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (500px)
-- Капли крови (`spawn_blood_drop()`): рядом с опасным (300px) — поднимаются выше DamageArea; рядом с `safe_obstacle` — не спавнятся совсем
+- `spawn_obstacle()` проверяет группу `safe_obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (300px)
+- `spawn_safe_obstacle()` проверяет группу `obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (300px)
+- `get_platform_top_y() -> float` — метод в `obstacle.gd`, возвращает мировой Y верхней грани платформы для safe obstacle (obstacle_type 2); читает реальные данные из `$TopCollision.shape`
 
 ---
 
@@ -233,3 +293,6 @@ Main
 - При добавлении новых коллектаблов: добавить группу для очистки при трансформации
 - Препятствия наносят урон через `DamageArea` (левая грань), не через физический толчок
 - При добавлении нового вида препятствия: добавить в группу `obstacle`, если безопасное — также в `safe_obstacle`; спавнеры в `main.gd` учтут его автоматически
+- **Аудио шины назначать в скриптах**, не в .tscn — редактор Godot стирает свойство `bus` при пересохранении сцены
+- **Оверлеи из паузы**: настройки и рекорды открываются через `add_child()` на CanvasLayer паузы, используют паттерн `signal closed` + `var from_pause: bool`
+- Stretch mode: `canvas_items` + `keep`, viewport 1152×648 — задано в project.godot

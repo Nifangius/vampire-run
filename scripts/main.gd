@@ -189,7 +189,6 @@ func spawn_obstacle():
 	for safe in get_tree().get_nodes_in_group("safe_obstacle"):
 		if abs(safe.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_SAFE_OBSTACLE_MIN_GAP:
 			return
-	_clear_collectibles_near_spawn()
 	var scene = ObstacleScene if randi() % 2 == 0 else Obstacle2Scene
 	var obstacle = scene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
@@ -203,6 +202,10 @@ func spawn_safe_obstacle():
 	var obstacle = ObstacleSafeScene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
 	add_child(obstacle)
+	# Спавним каплю крови прямо на платформу — Y берём из реальной геометрии препятствия
+	var drop = BloodDropScene.instantiate()
+	drop.position = Vector2(GameConfig.SPAWN_X, obstacle.get_platform_top_y()-50)
+	add_child(drop)
 	safe_obstacle_spawn_interval = randf_range(GameConfig.SPAWN_SAFE_OBSTACLE_MIN, GameConfig.SPAWN_SAFE_OBSTACLE_MAX) / difficulty
 
 func spawn_enemy():
@@ -217,15 +220,6 @@ func spawn_flying_enemy():
 	add_child(enemy)
 	flying_spawn_interval = randf_range(GameConfig.SPAWN_FLYING_MIN, GameConfig.SPAWN_FLYING_MAX) / difficulty
 
-# Удаляет коллектаблы рядом с точкой спавна — вызывается перед спавном опасного препятствия
-func _clear_collectibles_near_spawn():
-	for drop in get_tree().get_nodes_in_group("blood_drop"):
-		if abs(drop.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK:
-			drop.queue_free()
-	for drop in get_tree().get_nodes_in_group("health_drop"):
-		if abs(drop.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK:
-			drop.queue_free()
-
 # Возвращает тип ближайшего препятствия в радиусе: "dangerous", "safe" или "none"
 # Опасное препятствие имеет приоритет над безопасным
 func _nearest_obstacle_type(radius: float) -> String:
@@ -239,16 +233,17 @@ func _nearest_obstacle_type(radius: float) -> String:
 	return "safe" if has_safe else "none"
 
 func spawn_blood_drop():
-	var nearby := _nearest_obstacle_type(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
 	blood_spawn_interval = randf_range(GameConfig.SPAWN_BLOOD_MIN, GameConfig.SPAWN_BLOOD_MAX) / difficulty
-	# Рядом с безопасным препятствием — пропускаем спавн
+	var nearby := _nearest_obstacle_type(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
+	# Рядом с safe_obstacle — там уже есть капля (спавнится вместе с платформой), пропускаем
 	if nearby == "safe":
 		return
 	var drop = BloodDropScene.instantiate()
 	if nearby == "dangerous":
-		# Поднимаем каплю выше DamageArea
+		# Поднимаем каплю выше DamageArea — reward за прыжок через препятствие
 		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX))
 	else:
+		# Чистая зона — обычная высота у земли
 		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX))
 	add_child(drop)
 
