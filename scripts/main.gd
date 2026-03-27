@@ -202,10 +202,11 @@ func spawn_safe_obstacle():
 	var obstacle = ObstacleSafeScene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
 	add_child(obstacle)
-	# Спавним каплю крови прямо на платформу — Y берём из реальной геометрии препятствия
-	var drop = BloodDropScene.instantiate()
-	drop.position = Vector2(GameConfig.SPAWN_X, obstacle.get_platform_top_y()-50)
-	add_child(drop)
+	if (!is_transformed):
+		# Спавним каплю крови прямо на платформу — Y берём из реальной геометрии препятствия
+		var drop = BloodDropScene.instantiate()
+		drop.position = Vector2(GameConfig.SPAWN_X, obstacle.get_platform_top_y()-50)
+		add_child(drop)
 	safe_obstacle_spawn_interval = randf_range(GameConfig.SPAWN_SAFE_OBSTACLE_MIN, GameConfig.SPAWN_SAFE_OBSTACLE_MAX) / difficulty
 
 func spawn_enemy():
