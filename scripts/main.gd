@@ -5,6 +5,19 @@ var pixel_font = preload("res://assets/fonts/ThaleahFat.ttf")
 # РЕСУРСЫ — предзагрузка сцен
 # ============================================================
 const ObstacleScene     = preload("res://scenes/obstacle.tscn")
+
+const _TRANSFORM_SOUNDS = [
+	preload("res://assets/sounds/Transform1.wav"),
+	preload("res://assets/sounds/Transform2.wav"),
+	preload("res://assets/sounds/Transform3.wav"),
+	preload("res://assets/sounds/Transform4.wav"),
+	preload("res://assets/sounds/Transform5.wav"),
+	preload("res://assets/sounds/Transform6.wav"),
+	preload("res://assets/sounds/Transform7.wav"),
+	preload("res://assets/sounds/Transform8.wav"),
+	preload("res://assets/sounds/Transform9.wav"),
+	preload("res://assets/sounds/Transform10.wav")
+]
 const Obstacle2Scene    = preload("res://scenes/obstacle_2.tscn")
 const ObstacleSafeScene = preload("res://scenes/obstacle_safe.tscn")
 const EnemyScene        = preload("res://scenes/enemy.tscn")
@@ -38,6 +51,10 @@ var score: int          # текущий счёт
 var score_accumulator: float  # накопитель дробных очков
 var difficulty: float   # множитель сложности, растёт со временем
 var is_transformed: bool  # активна ли трансформация игрока
+var _transform_queue: Array = []
+var _transform_sound_player: AudioStreamPlayer
+var _transform_fade_tween: Tween
+var _gamepad_active := false  # последний ввод был с геймпада
 
 # ============================================================
 # ТАЙМЕРЫ СПАВНА
@@ -69,10 +86,17 @@ func _ready():
 	flying_spawn_interval = GameConfig.SPAWN_FLYING_MAX
 	blood_spawn_interval  = GameConfig.SPAWN_BLOOD_MAX
 	health_spawn_interval = GameConfig.SPAWN_HEALTH_MAX
-	
+
 	# Назначаем аудио шины
 	$MainBG.bus = "Music"
 	$TransformBG.bus = "Music"
+	_transform_sound_player = AudioStreamPlayer.new()
+	_transform_sound_player.bus = "Music"
+	_transform_sound_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_transform_sound_player)
+
+	# TransformLabel: выравнивание по центру, чтобы надпись центрировалась над игроком
+	transform_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 	# Подключаем сигналы паузы и игрока
 	pause_screen.resumed.connect(_on_pause_resumed)
@@ -82,6 +106,9 @@ func _ready():
 	$Player.transform_ready.connect(_on_transform_ready)
 	$Player.transformed.connect(_on_transformed)
 	$Player.transform_ended.connect(_on_transform_ended)
+	# Начальное состояние: геймпад активен только если клавиатуры нет (нет других устройств)
+	# Реальное значение будет определено по первому нажатию игрока
+	_gamepad_active = false
 
 # ============================================================
 # ИГРОВОЙ ЦИКЛ
@@ -91,25 +118,46 @@ func _process(delta):
 	_update_difficulty(delta)
 	_update_background(delta)
 	_update_spawners(delta)
+	if transform_label.visible:
+		_update_transform_label_position()
 
 func _on_pause_resumed():
 	if is_transformed:
-		transform_music.stream_paused = false
+		_transform_sound_player.stream_paused = false
 	else:
 		main_music.stream_paused = false
 
+func _input(event: InputEvent):
+	# Отслеживаем какое устройство игрок реально использует
+	if event is InputEventJoypadButton:
+		if not _gamepad_active:
+			_gamepad_active = true
+			if transform_label.visible:
+				_update_transform_label_text()
+	elif event is InputEventKey:
+		if _gamepad_active:
+			_gamepad_active = false
+			if transform_label.visible:
+				_update_transform_label_text()
+
 func _unhandled_input(event: InputEvent):
-	if event.is_action_pressed("ui_cancel") and not get_tree().paused:
+	if (event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause")) and not get_tree().paused:
 		_toggle_pause()
 
 func _toggle_pause():
 	if get_tree().paused:
 		pause_screen.hide_pause()
-		main_music.stream_paused = false
+		if is_transformed:
+			_transform_sound_player.stream_paused = false
+		else:
+			main_music.stream_paused = false
 		get_tree().paused = false
 	else:
 		pause_screen.show_pause(score)
-		main_music.stream_paused = true
+		if is_transformed:
+			_transform_sound_player.stream_paused = true
+		else:
+			main_music.stream_paused = true
 		get_tree().paused = true
 
 ## Обновление счёта — накапливаем дробное значение
@@ -202,7 +250,7 @@ func spawn_safe_obstacle():
 	var obstacle = ObstacleSafeScene.instantiate()
 	obstacle.position = Vector2(GameConfig.SPAWN_X, GameConfig.SPAWN_FLOOR_Y)
 	add_child(obstacle)
-	if (!is_transformed):
+	if not is_transformed and randf() < GameConfig.SPAWN_BLOOD_ON_SAFE_CHANCE:
 		# Спавним каплю крови прямо на платформу — Y берём из реальной геометрии препятствия
 		var drop = BloodDropScene.instantiate()
 		drop.position = Vector2(GameConfig.SPAWN_X, obstacle.get_platform_top_y()-50)
@@ -233,29 +281,53 @@ func _nearest_obstacle_type(radius: float) -> String:
 				return "dangerous"
 	return "safe" if has_safe else "none"
 
+# Возвращает наименьший (самый высокий на экране) top_y среди опасных препятствий в радиусе
+func _nearest_dangerous_top_y(radius: float) -> float:
+	var min_y := GameConfig.SPAWN_FLOOR_Y
+	for obstacle in get_tree().get_nodes_in_group("obstacle"):
+		if obstacle.is_in_group("safe_obstacle"):
+			continue
+		if abs(obstacle.position.x - GameConfig.SPAWN_X) < radius:
+			min_y = min(min_y, obstacle.get_platform_top_y())
+	return min_y
+
 func spawn_blood_drop():
 	blood_spawn_interval = randf_range(GameConfig.SPAWN_BLOOD_MIN, GameConfig.SPAWN_BLOOD_MAX) / difficulty
 	var nearby := _nearest_obstacle_type(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
 	# Рядом с safe_obstacle — там уже есть капля (спавнится вместе с платформой), пропускаем
 	if nearby == "safe":
 		return
-	var drop = BloodDropScene.instantiate()
+	# Не спавним если рядом уже есть другая капля крови — предотвращаем дубликаты
+	for existing in get_tree().get_nodes_in_group("blood_drop"):
+		if abs(existing.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_DROP_MIN_GAP:
+			return
+	var drop_y: float
 	if nearby == "dangerous":
-		# Поднимаем каплю выше DamageArea — reward за прыжок через препятствие
-		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX))
+		# Строго выше реального верха препятствия — reward за прыжок
+		var top_y := _nearest_dangerous_top_y(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
+		drop_y = top_y - GameConfig.SPAWN_BLOOD_ABOVE_OBSTACLE
 	else:
-		# Чистая зона — обычная высота у земли
-		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX))
+		# Чистая зона — диапазон гарантированно выше спрайтов любого препятствия
+		drop_y = randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX)
+	var drop = BloodDropScene.instantiate()
+	drop.position = Vector2(GameConfig.SPAWN_X, drop_y)
 	add_child(drop)
 
 func spawn_health_drop():
 	var nearby := _nearest_obstacle_type(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
-	var drop = HealthDropScene.instantiate()
+	# Не спавним если рядом уже есть другое сердце
+	for existing in get_tree().get_nodes_in_group("health_drop"):
+		if abs(existing.position.x - GameConfig.SPAWN_X) < GameConfig.SPAWN_DROP_MIN_GAP:
+			return
+	var drop_y: float
 	if nearby == "dangerous":
-		# Поднимаем сердечко выше DamageArea
-		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_SAFE_MIN, GameConfig.SPAWN_BLOOD_Y_SAFE_MAX))
+		# Строго выше реального верха препятствия
+		var top_y := _nearest_dangerous_top_y(GameConfig.SPAWN_BLOOD_OBSTACLE_CHECK)
+		drop_y = top_y - GameConfig.SPAWN_BLOOD_ABOVE_OBSTACLE
 	else:
-		drop.position = Vector2(GameConfig.SPAWN_X, randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX))
+		drop_y = randf_range(GameConfig.SPAWN_BLOOD_Y_MIN, GameConfig.SPAWN_BLOOD_Y_MAX)
+	var drop = HealthDropScene.instantiate()
+	drop.position = Vector2(GameConfig.SPAWN_X, drop_y)
 	add_child(drop)
 	health_spawn_interval = randf_range(GameConfig.SPAWN_HEALTH_MIN, GameConfig.SPAWN_HEALTH_MAX) / difficulty
 
@@ -276,16 +348,38 @@ func _on_blood_collected(count):
 	if count < GameConfig.BLOOD_TO_TRANSFORM:
 		transform_label.visible = false 
 
+func _update_transform_label_position():
+	transform_label.position = Vector2(
+		$Player.position.x - transform_label.size.x / 2.0,
+		$Player.position.y - GameConfig.TRANSFORM_LABEL_Y_OFFSET
+	)
+
+func _update_transform_label_text():
+	var key := "Y" if _gamepad_active else "F"
+	transform_label.text = 'PRESS "%s" TO TRANSFORM' % key
+
 func _on_transform_ready():
+	_update_transform_label_text()
+	_update_transform_label_position()
 	transform_label.visible = true
+
+func _play_transform_sound():
+	# Убиваем незавершённое затухание если трансформация началась снова
+	if _transform_fade_tween:
+		_transform_fade_tween.kill()
+	_transform_sound_player.volume_db = 0.0
+	if _transform_queue.is_empty():
+		_transform_queue = range(_TRANSFORM_SOUNDS.size())
+		_transform_queue.shuffle()
+	_transform_sound_player.stream = _TRANSFORM_SOUNDS[_transform_queue.pop_back()]
+	_transform_sound_player.volume_db = GameConfig.TRANSFORM_SOUND_VOLUME
+	_transform_sound_player.play()
 
 func _on_transformed():
 	is_transformed = true
 	health_spawn_timer = 0.0
-	
 	main_music.stream_paused = true
-	transform_music.play()
-	
+	_play_transform_sound()
 	# Убираем капли крови с экрана
 	for drop in get_tree().get_nodes_in_group("blood_drop"):
 		drop.queue_free()
@@ -293,9 +387,14 @@ func _on_transformed():
 
 func _on_transform_ended():
 	is_transformed = false
-	
-	transform_music.stop()
 	main_music.stream_paused = false
+	# Плавное затухание трека трансформации
+	_transform_fade_tween = create_tween()
+	_transform_fade_tween.tween_property(_transform_sound_player, "volume_db", -80.0, GameConfig.TRANSFORM_SOUND_FADE)
+	_transform_fade_tween.tween_callback(func():
+		_transform_sound_player.stop()
+		_transform_sound_player.volume_db = 0.0
+	)
 	# Убираем сердца с экрана
 	for heart in get_tree().get_nodes_in_group("health_drop"):
 		heart.queue_free()

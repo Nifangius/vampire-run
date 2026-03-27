@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cwyueu0tfmuqk" path="res://scenes/game_over.tscn" id="2_sugp2"]
 [ext_resource type="Texture2D" uid="uid://d2e5fmry7hkex" path="res://assets/sprites/heart.png" id="2_tbgi4"]
 [ext_resource type="Texture2D" uid="uid://dluh3b8mgr6qj" path="res://assets/sprites/blood.png" id="3_tefeu"]
+[ext_resource type="FontFile" uid="uid://b4hke17343hkl" path="res://assets/fonts/ThaleahFat.ttf" id="4_eb6dy"]
 [ext_resource type="PackedScene" uid="uid://bcmopcgg2xra3" path="res://scenes/pause.tscn" id="5_85g3d"]
 [ext_resource type="Texture2D" uid="uid://dn1k3c4f3yl6p" path="res://assets/background/back.png" id="6_tipki"]
 [ext_resource type="Texture2D" uid="uid://dc8c8w1ie5ihv" path="res://assets/background/middle.png" id="7_85g3d"]
@@ -212,14 +213,11 @@ shadow_color = Color(0, 0, 0, 0.8862745)
 shadow_offset = Vector2(6, 8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_0wfyh"]
-font = SubResource("FontFile_tbgi4")
-font_size = 50
-font_color = Color(0.3647059, 1, 0, 1)
-outline_size = 5
+font = ExtResource("4_eb6dy")
+font_size = 24
+font_color = Color(0.9971846, 0.9867057, 0.98425156, 1)
+outline_size = 10
 outline_color = Color(0.017732369, 0.017732404, 0.01773236, 1)
-shadow_size = 7
-shadow_color = Color(0, 0, 0, 0.8862745)
-shadow_offset = Vector2(6, 8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_sugp2"]
 font_size = 47
@@ -293,8 +291,8 @@ label_settings = SubResource("LabelSettings_tefeu")
 visible = false
 offset_left = 19.0
 offset_top = 117.0
-offset_right = 591.0
-offset_bottom = 211.0
+offset_right = 261.0
+offset_bottom = 139.0
 text = "PRESS \"F\" TO TRANSFROM"
 label_settings = SubResource("LabelSettings_0wfyh")
 
@@ -334,7 +332,7 @@ offset_left = -561.0
 offset_top = 643.0
 offset_right = 1152.0
 offset_bottom = 683.0
-color = Color(1, 0.06666667, 0.08627451, 1)
+color = Color(0.20843035, 0.12115198, 0.013895673, 1)
 
 [node name="Player" parent="." unique_id=2127567202 instance=ExtResource("1_ig7tw")]
 z_index = 4
@@ -398,7 +396,7 @@ centered = false
 [node name="MainBG" type="AudioStreamPlayer" parent="." unique_id=1353737210]
 process_mode = 3
 stream = ExtResource("10_ya4ey")
-volume_db = -25.92
+volume_db = -16.56
 autoplay = true
 
 [node name="TransformBG" type="AudioStreamPlayer" parent="." unique_id=933113858]

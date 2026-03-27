@@ -10,6 +10,7 @@ var from_pause := false
 func _ready():
 	$VBox/BackBtn.pressed.connect(_on_back)
 	_populate()
+	$VBox/BackBtn.grab_focus()
 
 func _populate():
 	# Очищаем старые строки
@@ -36,6 +37,11 @@ func _populate():
 		row.add_child(lbl_name)
 		row.add_child(lbl_score)
 		rows_container.add_child(row)
+
+func _unhandled_input(event: InputEvent):
+	if event.is_action_pressed("back") or event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_on_back()
 
 func _on_back():
 	if from_pause:

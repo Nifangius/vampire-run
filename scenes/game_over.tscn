@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cwyueu0tfmuqk"]
 
 [ext_resource type="Script" uid="uid://0dx7kp0slfb4" path="res://scripts/game_over.gd" id="1_xeevv"]
-[ext_resource type="FontFile" path="res://assets/fonts/ThaleahFat.ttf" id="2_font"]
+[ext_resource type="FontFile" uid="uid://b4hke17343hkl" path="res://assets/fonts/ThaleahFat.ttf" id="2_font"]
 
 [node name="GameOver" type="CanvasLayer" unique_id=1469536000]
 script = ExtResource("1_xeevv")
@@ -14,57 +14,55 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.19881096, 0, 0, 1)
 
-[node name="NameInput" type="CenterContainer" parent="."]
+[node name="NameInput" type="CenterContainer" parent="." unique_id=377149619]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="NameInput"]
+[node name="VBox" type="VBoxContainer" parent="NameInput" unique_id=1993028583]
 layout_mode = 2
-theme_constants/separation = 20
 
-[node name="Title" type="Label" parent="NameInput/VBox"]
+[node name="Title" type="Label" parent="NameInput/VBox" unique_id=894431268]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.9, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 40
-theme_override_colors/font_color = Color(1.0, 0.9, 0.9, 1.0)
 text = "Укажите ваше имя"
 horizontal_alignment = 1
 
-[node name="NameEdit" type="LineEdit" parent="NameInput/VBox"]
-layout_mode = 2
+[node name="NameEdit" type="LineEdit" parent="NameInput/VBox" unique_id=1172664145]
 custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 28
 placeholder_text = "Имя игрока"
 max_length = 20
 
-[node name="OKBtn" type="Button" parent="NameInput/VBox"]
-layout_mode = 2
+[node name="OKBtn" type="Button" parent="NameInput/VBox" unique_id=173019321]
 custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 30
 text = "ОК"
 
-[node name="GameOverPanel" type="CenterContainer" parent="."]
+[node name="GameOverPanel" type="CenterContainer" parent="." unique_id=1584130208]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-visible = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GameOverPanel" unique_id=1735107138]
 layout_mode = 2
-theme_constants/separation = 16
 
 [node name="GameOver" type="Label" parent="GameOverPanel/VBoxContainer" unique_id=130098568]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.1, 0.1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 72
-theme_override_colors/font_color = Color(1.0, 0.1, 0.1, 1.0)
 text = "Game Over"
 horizontal_alignment = 1
 
@@ -76,15 +74,15 @@ text = "Счёт: 0"
 horizontal_alignment = 1
 
 [node name="TryAgain" type="Button" parent="GameOverPanel/VBoxContainer" unique_id=906015672]
-layout_mode = 2
 custom_minimum_size = Vector2(280, 52)
+layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 30
 text = "Ещё раз"
 
-[node name="MainMenu" type="Button" parent="GameOverPanel/VBoxContainer"]
-layout_mode = 2
+[node name="MainMenu" type="Button" parent="GameOverPanel/VBoxContainer" unique_id=618399508]
 custom_minimum_size = Vector2(280, 52)
+layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 30
 text = "Главное меню"

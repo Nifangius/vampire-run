@@ -6,7 +6,7 @@
 Вдохновлён Monster Dash. Движок: **Godot 4**, язык: **GDScript**.
 
 Иллюзия движения создаётся параллакс фоном — сам игрок статичен по X.
-Управление: прыжок (пробел), стрельба (Z), трансформация (F), пауза (Escape).
+Управление: прыжок (пробел/A), стрельба (Z/X), трансформация (F/Y), пауза (Escape/Menu), назад (B).
 
 ---
 
@@ -46,7 +46,8 @@ res://
 │   ├── blood_drop.gd
 │   ├── heart.gd
 │   ├── game_over.gd
-│   └── pause.gd
+│   ├── pause.gd
+│   └── virtual_keyboard.gd   # экранная клавиатура для ввода имени с геймпада
 └── assets/
     ├── backgrounds/           # параллакс фоны (3 слоя)
     ├── sprites/               # спрайты персонажей
@@ -146,10 +147,12 @@ collect_health()                     # собрать сердце
 
 **Важно про спавн коллектаблов:**
 - `_nearest_obstacle_type(radius)` — хелпер, возвращает `"dangerous"`, `"safe"` или `"none"`
+- `_nearest_dangerous_top_y(radius)` — возвращает наименьший Y верхней грани опасного препятствия в радиусе
 - `spawn_safe_obstacle()` — **всегда** спавнит каплю крови прямо на платформу; Y определяется через `obstacle.get_platform_top_y() - 50` (реальная геометрия, не константа)
-- `spawn_blood_drop()`: рядом с safe_obstacle → пропуск (капля уже есть на платформе); рядом с опасным → elevated Y (200-350); чистая зона → Y у земли
-- `spawn_health_drop()`: рядом с опасным → elevated Y
+- `spawn_blood_drop()`: рядом с safe → пропуск; рядом с опасным → `top_y - SPAWN_BLOOD_ABOVE_OBSTACLE`; чистая зона → `randf_range(SPAWN_BLOOD_Y_MIN, SPAWN_BLOOD_Y_MAX)`. Также проверяет `SPAWN_DROP_MIN_GAP` — не спавнит если рядом уже есть капля.
+- `spawn_health_drop()`: аналогичная логика с `_nearest_dangerous_top_y`
 - **Нет `_clear_collectibles_near_spawn()`** — функция удалена. Коллектаблы никогда не удаляются принудительно после спавна; безопасное размещение решается в момент спавна
+- `SPAWN_BLOOD_Y_MAX = 460` — гарантирует что капли всегда выше спрайтов всех препятствий (obstacle_2 sprite top ≈ Y=488)
 
 ### Система очков
 ```gdscript
@@ -163,6 +166,23 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 ### Трансформация
 При трансформации и её окончании вызывается `flash_and_pause()` — белая вспышка + пауза 0.5 сек + неуязвимость 1.5 сек.
 
+### TransformLabel
+- Отображается **над головой игрока** (не в фиксированном UI) — позиция обновляется в `_process` через `$Player.position`
+- Текст динамический: `"F"` или `"Y"` в зависимости от `_gamepad_active`
+- `_gamepad_active` — bool, обновляется в `_input()`: `InputEventJoypadButton` → true, `InputEventKey` → false
+- **Не использовать** `Input.get_connected_joypads().size() > 0` — определяет наличие устройства, а не что игрок реально нажимает
+
+### Обнаружение устройства ввода
+```gdscript
+var _gamepad_active := false
+
+func _input(event: InputEvent):
+    if event is InputEventJoypadButton:
+        _gamepad_active = true
+    elif event is InputEventKey:
+        _gamepad_active = false
+```
+
 ### Пауза
 `_toggle_pause()` открывает паузу (только когда НЕ на паузе). Закрытие — исключительно через pause.gd.
 Музыка при паузе: `main_music.stream_paused`. Возобновление через сигнал `pause_screen.resumed`.
@@ -172,11 +192,12 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 ## Архитектура паузы (pause.gd)
 
 - Process Mode: Always
-- Навигация: W/S по кнопкам, Escape = продолжить
-- Escape поглощается через `_unhandled_input` + `set_input_as_handled()` чтобы main.gd не получил событие
+- Навигация: W/S / `ui_up`/`ui_down` по кнопкам, Escape/B = продолжить
+- Escape и `back` (B на геймпаде) поглощаются через `_unhandled_input` + `set_input_as_handled()`
 - Кнопки: Продолжить, Настройки, Рекорды, Выйти
 - Настройки и Рекорды открываются как оверлей (`add_child`) поверх паузы — игровой прогресс сохраняется
 - Сигнал `resumed` эмитируется при продолжении → main.gd возобновляет нужную музыку
+- **Важно при B + оверлей**: если открыт оверлей (settings/leaderboard), `$CenterContainer.visible == false` — нужна проверка `if not $CenterContainer.visible: return` чтобы B не закрыл паузу под оверлеем
 
 **Важно:** `Input.is_action_just_pressed()` — polling, игнорирует `set_input_as_handled()`. Для перехвата событий с приоритетом использовать `_unhandled_input`.
 
@@ -187,7 +208,9 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 1. При первой смерти в сессии — показывается панель `NameInput` с LineEdit
 2. Пробел/Enter/ОК подтверждают имя → `ScoresManager.session_name` сохраняется на всю сессию
 3. При последующих смертях — имя уже известно, сразу сохраняется счёт
-4. Кнопки: "Ещё раз" (`reload_current_scene`), "Главное меню"
+4. Кнопки: "Ещё раз" (`reload_current_scene`), "Главное меню" (сбрасывает `session_name = ""`)
+5. На экране ввода имени: кнопка Menu (геймпад) = подтвердить имя; кнопка A (геймпад) = открыть виртуальную клавиатуру
+6. `session_name` **не сбрасывается** при "Ещё раз" — только при выходе в главное меню
 
 ---
 
@@ -225,7 +248,7 @@ add_score(points: int, position: Vector2)  # начислить очки и по
 ### Логика спавна препятствий
 - `spawn_obstacle()` проверяет группу `safe_obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (300px)
 - `spawn_safe_obstacle()` проверяет группу `obstacle` — не спавнится в радиусе `SPAWN_SAFE_OBSTACLE_MIN_GAP` (300px)
-- `get_platform_top_y() -> float` — метод в `obstacle.gd`, возвращает мировой Y верхней грани платформы для safe obstacle (obstacle_type 2); читает реальные данные из `$TopCollision.shape`
+- `get_platform_top_y() -> float` — метод в `obstacle.gd`, возвращает мировой Y верхней грани через `$TopCollision.shape` (RectangleShape2D); работает для **всех** типов препятствий
 
 ---
 
@@ -294,5 +317,5 @@ Main
 - Препятствия наносят урон через `DamageArea` (левая грань), не через физический толчок
 - При добавлении нового вида препятствия: добавить в группу `obstacle`, если безопасное — также в `safe_obstacle`; спавнеры в `main.gd` учтут его автоматически
 - **Аудио шины назначать в скриптах**, не в .tscn — редактор Godot стирает свойство `bus` при пересохранении сцены
-- **Оверлеи из паузы**: настройки и рекорды открываются через `add_child()` на CanvasLayer паузы, используют паттерн `signal closed` + `var from_pause: bool`
+- **Оверлеи**: настройки и рекорды открываются через `add_child()` поверх паузы или главного меню, используют паттерн `signal closed` + `var from_pause: bool`. Это сохраняет музыку — `change_scene_to_file` выгружает сцену целиком вместе с музыкой
 - Stretch mode: `canvas_items` + `keep`, viewport 1152×648 — задано в project.godot

@@ -18,6 +18,8 @@ func _ready():
 	opt.selected                      = SettingsManager.resolution_idx
 	$VBox/WindowRow/CheckBox.button_pressed = SettingsManager.windowed
 
+	$VBox/MasterRow/HSlider.grab_focus()
+
 	# Подключаем сигналы
 	$VBox/MasterRow/HSlider.value_changed.connect(_on_master_changed)
 	$VBox/MusicRow/HSlider.value_changed.connect(_on_music_changed)
@@ -45,6 +47,11 @@ func _on_resolution_changed(idx: int):
 func _on_windowed_toggled(toggled: bool):
 	SettingsManager.windowed = toggled
 	SettingsManager.apply_settings()
+
+func _unhandled_input(event: InputEvent):
+	if event.is_action_pressed("back") or event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_on_back()
 
 func _on_back():
 	SettingsManager.save_settings()

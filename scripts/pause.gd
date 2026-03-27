@@ -38,16 +38,20 @@ func _rebuild_buttons():
 func _unhandled_input(event: InputEvent):
 	if not visible:
 		return
-	if event.is_action_pressed("ui_cancel"):
+	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause") or event.is_action_pressed("back"):
+		# Если открыт оверлей (настройки/рекорды) — не перехватываем, пусть он обработает
+		if not $CenterContainer.visible:
+			return
 		get_viewport().set_input_as_handled()
 		_on_continue()
-	elif event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_W:
-			_focused_index = (_focused_index - 1 + _buttons.size()) % _buttons.size()
-			_buttons[_focused_index].grab_focus()
-		elif event.keycode == KEY_S:
-			_focused_index = (_focused_index + 1) % _buttons.size()
-			_buttons[_focused_index].grab_focus()
+	elif event.is_action_pressed("ui_up") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_W):
+		get_viewport().set_input_as_handled()
+		_focused_index = (_focused_index - 1 + _buttons.size()) % _buttons.size()
+		_buttons[_focused_index].grab_focus()
+	elif event.is_action_pressed("ui_down") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_S):
+		get_viewport().set_input_as_handled()
+		_focused_index = (_focused_index + 1) % _buttons.size()
+		_buttons[_focused_index].grab_focus()
 
 func _on_continue():
 	hide_pause()
