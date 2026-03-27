@@ -98,8 +98,8 @@ const SPAWN_FLYING_MIN      = 5.0
 const SPAWN_FLYING_MAX      = 10.0
 const SPAWN_BLOOD_MIN       = 1.0 
 const SPAWN_BLOOD_MAX       = 3.5
-const SPAWN_HEALTH_MIN      = 2.5
-const SPAWN_HEALTH_MAX      = 5.0
+const SPAWN_HEALTH_MIN      = 3
+const SPAWN_HEALTH_MAX      = 7
 
 # ============================================================
 # СЛОЖНОСТЬ

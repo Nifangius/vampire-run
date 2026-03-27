@@ -80,12 +80,20 @@ var health_spawn_interval: float
 func _ready():
 	# Начальные значения
 	difficulty = 1.0
-	spawn_interval                = GameConfig.SPAWN_OBSTACLE_MAX
-	safe_obstacle_spawn_interval  = GameConfig.SPAWN_SAFE_OBSTACLE_MAX
-	enemy_spawn_interval  = GameConfig.SPAWN_ENEMY_MAX
-	flying_spawn_interval = GameConfig.SPAWN_FLYING_MAX
-	blood_spawn_interval  = GameConfig.SPAWN_BLOOD_MAX
-	health_spawn_interval = GameConfig.SPAWN_HEALTH_MAX
+	spawn_interval                = randf_range(GameConfig.SPAWN_OBSTACLE_MIN,      GameConfig.SPAWN_OBSTACLE_MAX)
+	safe_obstacle_spawn_interval  = randf_range(GameConfig.SPAWN_SAFE_OBSTACLE_MIN, GameConfig.SPAWN_SAFE_OBSTACLE_MAX)
+	enemy_spawn_interval          = randf_range(GameConfig.SPAWN_ENEMY_MIN,         GameConfig.SPAWN_ENEMY_MAX)
+	flying_spawn_interval         = randf_range(GameConfig.SPAWN_FLYING_MIN,        GameConfig.SPAWN_FLYING_MAX)
+	blood_spawn_interval          = randf_range(GameConfig.SPAWN_BLOOD_MIN,         GameConfig.SPAWN_BLOOD_MAX)
+	health_spawn_interval         = randf_range(GameConfig.SPAWN_HEALTH_MIN,        GameConfig.SPAWN_HEALTH_MAX)
+
+	# Предзаполняем таймеры случайными значениями — первые спавны каждый запуск в разное время
+	spawn_timer               = randf_range(0.0, spawn_interval)
+	safe_obstacle_spawn_timer = randf_range(0.0, safe_obstacle_spawn_interval)
+	enemy_spawn_timer         = randf_range(0.0, enemy_spawn_interval)
+	flying_spawn_timer        = randf_range(0.0, flying_spawn_interval)
+	blood_spawn_timer         = randf_range(0.0, blood_spawn_interval)
+	health_spawn_timer        = randf_range(0.0, health_spawn_interval)
 
 	# Назначаем аудио шины
 	$MainBG.bus = "Music"

@@ -16,6 +16,7 @@ func _ready():
 	$CenterContainer/VBoxContainer/Continue.pressed.connect(_on_continue)
 	$CenterContainer/VBoxContainer/Settings.pressed.connect(_on_settings)
 	$CenterContainer/VBoxContainer/Records.pressed.connect(_on_leaderboard)
+	$CenterContainer/VBoxContainer/MainMenu.pressed.connect(_on_main_menu)
 	$CenterContainer/VBoxContainer/Exit.pressed.connect(_on_exit)
 
 func show_pause(score: int):
@@ -32,6 +33,7 @@ func _rebuild_buttons():
 		$CenterContainer/VBoxContainer/Continue,
 		$CenterContainer/VBoxContainer/Settings,
 		$CenterContainer/VBoxContainer/Records,
+		$CenterContainer/VBoxContainer/MainMenu,
 		$CenterContainer/VBoxContainer/Exit,
 	]
 
@@ -76,6 +78,11 @@ func _on_overlay_closed():
 	$CenterContainer.visible = true
 	_focused_index = 0
 	_buttons[0].grab_focus()
+
+func _on_main_menu():
+	ScoresManager.session_name = ""
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_exit():
 	get_tree().paused = false

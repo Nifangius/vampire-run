@@ -46,7 +46,7 @@ frame = 1
 frame_progress = 0.39622143
 
 [node name="Title" type="Sprite2D" parent="." unique_id=2052619833]
-position = Vector2(554.99994, 113.99999)
+position = Vector2(587, 113.99999)
 scale = Vector2(3.0099998, 3.1794555)
 texture = ExtResource("3_wu84c")
 
