@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bkyshmfw6gaxp"]
+
+[ext_resource type="Script" uid="uid://cq1ods02suuw6" path="res://scenes/splash.gd" id="1_10vqf"]
+[ext_resource type="VideoStream" uid="uid://b0adxai400ahy" path="res://assets/logo1.ogv" id="2_4rrho"]
+
+[node name="Splash" type="Node2D" unique_id=1394764013]
+script = ExtResource("1_10vqf")
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="." unique_id=879595781]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("2_4rrho")
+expand = true

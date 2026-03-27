@@ -44,6 +44,10 @@ text = "Настройки"
 layout_mode = 2
 text = "Рекорды"
 
+[node name="MainMenu" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Главное меню"
+
 [node name="Exit" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 text = "Выйти из игры"
