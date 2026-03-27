@@ -279,4 +279,4 @@ pitch_scale = 0.49
 
 [node name="HeartSound" type="AudioStreamPlayer2D" parent="." unique_id=1148790839]
 stream = ExtResource("15_oprun")
-volume_db = -8.343
+volume_db = -16.171
