@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dluh3b8mgr6qj" path="res://assets/sprites/blood.png" id="2_2ham8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aqk0y"]
+size = Vector2(20, 31)
 
 [node name="BloodDrop" type="Area2D" unique_id=2726579 groups=["blood_drop"]]
 z_index = 4
@@ -19,5 +20,6 @@ texture = ExtResource("2_2ham8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=788932029]
 z_index = 4
+position = Vector2(0, -2.5)
 shape = SubResource("RectangleShape2D_aqk0y")
 debug_color = Color(0, 0.6, 0.69803923, 0.101960786)

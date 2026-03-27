@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://d2e5fmry7hkex" path="res://assets/sprites/heart.png" id="2_ycbwg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aqk0y"]
+size = Vector2(31, 30)
 
 [node name="Heart" type="Area2D" unique_id=2726579 groups=["health_drop"]]
 z_index = 4
@@ -19,5 +20,6 @@ texture = ExtResource("2_ycbwg")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=788932029]
 z_index = 4
+position = Vector2(-0.5, -1)
 shape = SubResource("RectangleShape2D_aqk0y")
 debug_color = Color(0, 0.6, 0.69803923, 0.101960786)

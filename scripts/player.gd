@@ -26,7 +26,7 @@ var can_transform: bool  # доступна ли трансформация
 var is_shooting: bool    # проигрывается ли анимация стрельбы
 var is_jumping: bool     # находится ли игрок в прыжке
 var has_double_jump: bool = true  # доступен ли двойной прыжок
-var was_on_floor = true
+var has_stomp_jump: bool = false  # доступен ли "наземный" прыжок после стомпа
 var scored_projectiles = []
 
 var initial_position: Vector2  # начальная позиция для сброса после урона
@@ -95,6 +95,14 @@ func _handle_move(delta):
 				is_jumping = true
 				$AnimatedSprite2D.play("jump")
 				$Jump.play()  # звук прыжка
+			elif has_stomp_jump:
+				# Прыжок после стомпа — как наземный, восстанавливает двойной прыжок
+				has_stomp_jump = false
+				has_double_jump = true
+				is_jumping = true
+				velocity.y = GameConfig.PLAYER_JUMP_VELOCITY
+				$AnimatedSprite2D.play("jump")
+				$Jump.play()  # звук прыжка
 			elif has_double_jump:
 				# Двойной прыжок
 				has_double_jump = false
@@ -103,8 +111,9 @@ func _handle_move(delta):
 				$AnimatedSprite2D.play("jump")
 				$Jump.play()  # звук прыжка
 	else:
-		# На земле восстанавливаем двойной прыжок и обрабатываем первый прыжок
+		# На земле восстанавливаем прыжки и обрабатываем первый прыжок
 		has_double_jump = true
+		has_stomp_jump = false
 		coyote_timer = GameConfig.PLAYER_COYOTE_TIME
 		if Input.is_action_just_pressed("jump"):
 			velocity.y = GameConfig.PLAYER_JUMP_VELOCITY
@@ -275,7 +284,8 @@ func _on_hitbox_body_entered(body):
 			$StompSound.play()
 			body.die()     # обычный стомп — отскок вверх
 			velocity.y = GameConfig.PLAYER_STOMP_BOUNCE
-			
+			has_stomp_jump = true
+			has_double_jump = false
 			# Начисляем очки в зависимости от типа врага
 			var points = 0
 			if body.is_in_group("flying_enemy"):

@@ -206,11 +206,11 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sh265"]
-size = Vector2(20, 48.666668)
+size = Vector2(16.333334, 36)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_g2els"]
-radius = 26.0
-height = 104.0
+radius = 24.0
+height = 80.0
 
 [node name="Player" type="CharacterBody2D" unique_id=2127567202 groups=["player"]]
 z_index = 6
@@ -221,14 +221,14 @@ script = ExtResource("1_4flbx")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1298109255]
 z_index = 6
-position = Vector2(0.49999952, 9.536743e-07)
-scale = Vector2(5, 5.084)
+position = Vector2(10.624997, -12.413999)
+scale = Vector2(3.4609373, 3.849125)
 sprite_frames = SubResource("SpriteFrames_fjrip")
-animation = &"trans_shoot"
+animation = &"run"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1799525417]
 top_level = true
-position = Vector2(0.9999995, 7.000003)
+position = Vector2(10.5, -7.0000005)
 scale = Vector2(3, 3)
 shape = SubResource("RectangleShape2D_sh265")
 debug_color = Color(0.5529412, 0.4862745, 1, 0.41960785)
@@ -238,7 +238,7 @@ collision_layer = 0
 collision_mask = 8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox" unique_id=1538780150 groups=["player_hitbox"]]
-position = Vector2(5, 2)
+position = Vector2(12, -4)
 shape = SubResource("CapsuleShape2D_g2els")
 debug_color = Color(0.6579946, 0.5106504, 0.21217036, 0.41960785)
 
