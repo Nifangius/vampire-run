@@ -15,6 +15,7 @@ signal transform_ended  # трансформация завершена
 # ============================================================
 const BatScene = preload("res://scenes/bat.tscn")
 
+
 # ============================================================
 # СОСТОЯНИЕ ИГРОКА
 # ============================================================
@@ -39,7 +40,7 @@ var flap_timer = 0.0
 func _ready():
 	lives = GameConfig.PLAYER_LIVES
 	# Назначаем аудио шины
-	for node in [$Footsteps, $Jump, $Land, $StompSound, $HitSound, $DropSound, $TransformSound, $Flap, $HeartSound]:
+	for node in [$Footsteps, $Jump, $Land, $StompSound, $HitSound, $DropSound,$TransformSound, $Flap, $HeartSound]:
 		node.bus = "SFX"
 	initial_position = position
 	$HitBox.body_entered.connect(_on_hitbox_body_entered)
